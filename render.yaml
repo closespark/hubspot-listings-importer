@@ -1,0 +1,21 @@
+services:
+  # Cron Job - Runs on a schedule
+  - type: cron
+    name: hubspot-listings-importer
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    schedule: "0 */6 * * *" # Every 6 hours
+    envVars:
+      - key: HUBSPOT_ACCESS_TOKEN
+        sync: false # Set this in Render dashboard
+      - key: FEED_URL
+        sync: false # Set this in Render dashboard
+      - key: LOG_LEVEL
+        value: info
+      - key: RETRY_ATTEMPTS
+        value: 3
+      - key: RETRY_DELAY
+        value: 1000
+      - key: BATCH_SIZE
+        value: 100
