@@ -37,12 +37,27 @@ class Config {
       hubspotAccessToken: process.env.HUBSPOT_ACCESS_TOKEN,
       feedUrl: process.env.FEED_URL,
       logLevel: process.env.LOG_LEVEL || 'info',
-      retryAttempts: parseInt(process.env.RETRY_ATTEMPTS || '3'),
-      retryDelay: parseInt(process.env.RETRY_DELAY || '1000'),
-      batchSize: parseInt(process.env.BATCH_SIZE || '100'),
+      retryAttempts: this.parseIntSafe(process.env.RETRY_ATTEMPTS, 3),
+      retryDelay: this.parseIntSafe(process.env.RETRY_DELAY, 1000),
+      batchSize: this.parseIntSafe(process.env.BATCH_SIZE, 100),
     };
 
     this.validate();
+  }
+
+  /**
+   * Safely parse integer with fallback to default
+   */
+  parseIntSafe(value, defaultValue) {
+    if (!value) {
+      return defaultValue;
+    }
+    const parsed = parseInt(value, 10);
+    if (isNaN(parsed) || parsed <= 0) {
+      console.warn(`Invalid numeric value "${value}", using default ${defaultValue}`);
+      return defaultValue;
+    }
+    return parsed;
   }
 
   /**

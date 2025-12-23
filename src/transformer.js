@@ -123,12 +123,42 @@ class DataTransformer {
     }
 
     try {
-      const date = new Date(value);
-      if (isNaN(date.getTime())) {
-        logger.warn(`Invalid date value: ${value}`);
-        return null;
+      // Handle numeric timestamps (already in milliseconds or seconds)
+      if (typeof value === 'number') {
+        // If it looks like seconds (less than year 3000 in milliseconds)
+        const timestamp = value < 10000000000 ? value * 1000 : value;
+        const date = new Date(timestamp);
+        if (!isNaN(date.getTime())) {
+          return date.getTime();
+        }
       }
-      return date.getTime();
+
+      // Handle string dates
+      if (typeof value === 'string') {
+        // Reject obviously invalid patterns
+        if (value.trim() === '' || value === 'null' || value === 'undefined') {
+          return null;
+        }
+
+        const date = new Date(value);
+        
+        // Check if the date is valid and not in the distant past (before 1900) or far future (after 2100)
+        if (isNaN(date.getTime())) {
+          logger.warn(`Invalid date value: ${value}`);
+          return null;
+        }
+
+        const year = date.getFullYear();
+        if (year < 1900 || year > 2100) {
+          logger.warn(`Date out of reasonable range: ${value}`);
+          return null;
+        }
+
+        return date.getTime();
+      }
+
+      logger.warn(`Unsupported date type: ${typeof value}`);
+      return null;
     } catch (error) {
       logger.warn(`Error parsing date: ${value}`, { error: error.message });
       return null;

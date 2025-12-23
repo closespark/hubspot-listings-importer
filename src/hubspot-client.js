@@ -239,6 +239,9 @@ class HubSpotClient {
 
   /**
    * Batch upsert listings
+   * Note: Processes listings sequentially rather than using HubSpot's batch API
+   * to provide better error isolation and detailed logging per listing.
+   * For high-volume scenarios, consider implementing batch API endpoints.
    */
   async batchUpsert(listings) {
     const results = {

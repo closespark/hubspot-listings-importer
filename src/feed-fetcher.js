@@ -19,9 +19,43 @@ class FeedFetcher {
   }
 
   /**
+   * Validate URL to prevent SSRF attacks
+   */
+  validateUrl(url) {
+    try {
+      const parsedUrl = new URL(url);
+      
+      // Only allow http and https protocols
+      if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+        throw new Error('Only HTTP and HTTPS protocols are allowed');
+      }
+
+      // Prevent requests to private IP ranges
+      const hostname = parsedUrl.hostname.toLowerCase();
+      
+      // Block localhost and loopback
+      if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') {
+        throw new Error('Requests to localhost are not allowed');
+      }
+
+      // Block private IP ranges (basic check)
+      if (hostname.match(/^(10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|192\.168\.)/)) {
+        throw new Error('Requests to private IP ranges are not allowed');
+      }
+
+      return true;
+    } catch (error) {
+      throw new Error(`Invalid feed URL: ${error.message}`);
+    }
+  }
+
+  /**
    * Fetch feed data with retry logic
    */
   async fetchFeed(url) {
+    // Validate URL to prevent SSRF
+    this.validateUrl(url);
+    
     logger.info(`Fetching feed from: ${url}`);
     
     let lastError;
