@@ -7,8 +7,8 @@ const path = require('path');
  */
 class Config {
   constructor() {
-    this.config = {};
-    this.loadConfig();
+    this.config = null;
+    this.loaded = false;
   }
 
   /**
@@ -18,6 +18,10 @@ class Config {
    * 3. Local .env file (for development)
    */
   loadConfig() {
+    if (this.loaded) {
+      return; // Already loaded
+    }
+
     // Try to load from local .env first (for development)
     const localEnvPath = path.join(process.cwd(), '.env');
     if (fs.existsSync(localEnvPath)) {
@@ -34,14 +38,18 @@ class Config {
 
     // Environment variables take precedence (Render env vars or system env vars)
     this.config = {
-      hubspotAccessToken: process.env.HUBSPOT_ACCESS_TOKEN,
+      hubspotAccessToken: process.env.HUBSPOT_ACCESS_TOKEN || process.env.HUBSPOT_API_TOKEN,
       feedUrl: process.env.FEED_URL,
+      feedSource: process.env.FEED_SOURCE || 'url', // 'url' or 'file'
+      feedFilePath: process.env.FEED_FILE_PATH,
+      dryRun: process.env.DRY_RUN === 'true',
       logLevel: process.env.LOG_LEVEL || 'info',
       retryAttempts: this.parseIntSafe(process.env.RETRY_ATTEMPTS, 3),
       retryDelay: this.parseIntSafe(process.env.RETRY_DELAY, 1000),
       batchSize: this.parseIntSafe(process.env.BATCH_SIZE, 100),
     };
 
+    this.loaded = true;
     this.validate();
   }
 
@@ -64,11 +72,29 @@ class Config {
    * Validate required configuration
    */
   validate() {
-    if (!this.config.hubspotAccessToken) {
-      throw new Error('HUBSPOT_ACCESS_TOKEN is required');
+    // Skip validation if showing help or no token is needed yet
+    if (process.argv.includes('--help') || process.argv.includes('-h')) {
+      return;
     }
-    if (!this.config.feedUrl) {
-      throw new Error('FEED_URL is required');
+
+    if (!this.config.hubspotAccessToken) {
+      throw new Error('HUBSPOT_ACCESS_TOKEN or HUBSPOT_API_TOKEN is required');
+    }
+    
+    // Only validate feed source if CLI args haven't been processed yet
+    const hasFeedSource = this.config.feedUrl || this.config.feedFilePath;
+    
+    if (!this.config.dryRun && !hasFeedSource) {
+      // Allow validation to pass if we're just showing help or haven't set feed source yet
+      // This will be re-validated when the importer runs
+      return;
+    }
+    
+    if (this.config.feedSource === 'url' && !this.config.feedUrl) {
+      throw new Error('FEED_URL is required when using URL source');
+    }
+    if (this.config.feedSource === 'file' && !this.config.feedFilePath) {
+      throw new Error('FEED_FILE_PATH is required when using file source');
     }
   }
 
@@ -76,6 +102,9 @@ class Config {
    * Get configuration value
    */
   get(key) {
+    if (!this.loaded) {
+      this.loadConfig();
+    }
     return this.config[key];
   }
 
@@ -83,6 +112,9 @@ class Config {
    * Get all configuration
    */
   getAll() {
+    if (!this.loaded) {
+      this.loadConfig();
+    }
     return { ...this.config };
   }
 }

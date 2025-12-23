@@ -127,9 +127,30 @@ class HubSpotClient {
       return;
     }
 
+    // Check for dry-run mode
+    if (config.get('dryRun')) {
+      logger.info(`[DRY-RUN] Would create property: ${property.name}`);
+      return;
+    }
+
     try {
+      // Prepare property data
+      const propertyData = {
+        name: property.name,
+        label: property.label,
+        type: property.type,
+        fieldType: property.fieldType,
+        groupName: property.groupName,
+        description: property.description,
+      };
+
+      // Add options for enumeration/select fields
+      if (property.type === 'enumeration' && property.options) {
+        propertyData.options = property.options;
+      }
+
       await this.retry(
-        () => this.client.crm.properties.coreApi.create(this.objectType, property),
+        () => this.client.crm.properties.coreApi.create(this.objectType, propertyData),
         `create property ${property.name}`
       );
       logger.info(`Created property: ${property.name}`);
@@ -190,6 +211,12 @@ class HubSpotClient {
    * Create a new listing
    */
   async createListing(properties) {
+    // Check for dry-run mode
+    if (config.get('dryRun')) {
+      logger.info(`[DRY-RUN] Would create listing: ${properties.assetId}`);
+      return { id: 'dry-run-' + properties.assetId, properties };
+    }
+
     try {
       const result = await this.retry(
         () => this.client.crm.objects.basicApi.create(this.objectType, { properties }),
@@ -207,6 +234,12 @@ class HubSpotClient {
    * Update an existing listing
    */
   async updateListing(listingId, properties) {
+    // Check for dry-run mode
+    if (config.get('dryRun')) {
+      logger.info(`[DRY-RUN] Would update listing: ${properties.assetId} (ID: ${listingId})`);
+      return { id: listingId, properties };
+    }
+
     try {
       const result = await this.retry(
         () => this.client.crm.objects.basicApi.update(this.objectType, listingId, { properties }),

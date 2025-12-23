@@ -11,11 +11,19 @@ class Logger {
       info: 2,
       debug: 3,
     };
-    this.currentLevel = this.levels[config.get('logLevel')] || this.levels.info;
+    this.currentLevel = null; // Lazy loaded
+  }
+
+  getCurrentLevel() {
+    if (this.currentLevel === null) {
+      const logLevel = config.get('logLevel') || 'info';
+      this.currentLevel = this.levels[logLevel] || this.levels.info;
+    }
+    return this.currentLevel;
   }
 
   log(level, message, data = null) {
-    if (this.levels[level] <= this.currentLevel) {
+    if (this.levels[level] <= this.getCurrentLevel()) {
       const timestamp = new Date().toISOString();
       const logMessage = `[${timestamp}] [${level.toUpperCase()}] ${message}`;
       

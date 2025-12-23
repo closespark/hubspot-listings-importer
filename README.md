@@ -15,32 +15,34 @@ A Node.js tool that imports JSON real estate feeds into HubSpot Listings objects
 
 ## Supported Properties
 
-The importer creates and manages the following Listings properties:
+The importer creates and manages the following Listings properties (21 total):
 
 ### Property Details
 - `assetId` - Unique identifier (required)
+- `assetReferenceId` - Secondary reference ID
+- `listingStartDate` - When listing became active
 - `listPrice` - Listing price
-- `listingStatus` - Current status
-- `propertyType` - Type of property
+- `listingStatus` - Current status (dropdown: Active, Pending, Sold, Withdrawn, Expired, Contingent)
+- `propertyType` - Type of property (dropdown: Single Family, Condo, Townhouse, Multi-Family, Land, Commercial, Other)
 
 ### Property Specifications
 - `squareFootage` - Square footage
 - `bathrooms` - Number of bathrooms
 - `bedrooms` - Number of bedrooms
 - `lotSize` - Lot size value
-- `lotSizeUnits` - Units for lot size
+- `lotSizeUnits` - Units for lot size (dropdown: Square Feet, Acres, Square Meters)
 
 ### Location Information
 - `city` - City
 - `state` - State
 - `zip` - ZIP/Postal code
 - `county` - County
-- `address1` - Primary address line
-- `address2` - Secondary address line
+- `addressLine1` - Primary address line
+- `addressLine2` - Secondary address line
 
 ### Media and Auction
 - `mediaUrl` - URL to property media/images
-- `auctionStatus` - Auction status
+- `auctionStatus` - Auction status (dropdown: Not on Auction, Upcoming, Active, Ended, Sold)
 - `auctionStartDate` - Auction start date
 - `auctionEndDate` - Auction end date
 
@@ -107,10 +109,40 @@ On Render, configure environment variables in the dashboard or create a secret f
 
 ## Usage
 
-### Local Execution
+### CLI Interface
+
+The importer supports both file-based and URL-based feeds via command-line arguments:
+
+**Import from local file:**
+```bash
+node src/cli.js --file ./path/to/feed.json
+```
+
+**Import from URL:**
+```bash
+node src/cli.js --url https://example.com/feed.json
+```
+
+**Dry-run mode (no changes to HubSpot):**
+```bash
+node src/cli.js --file ./feed.json --dry-run
+```
+
+**Show help:**
+```bash
+node src/cli.js --help
+```
+
+### Environment Variables (Legacy)
+
+You can also use environment variables (for backward compatibility or Render deployments):
 
 ```bash
-npm start
+# For URL-based feeds
+FEED_URL=https://example.com/feed.json npm start
+
+# For file-based feeds
+FEED_SOURCE=file FEED_FILE_PATH=./feed.json npm start
 ```
 
 ### On Render
@@ -119,7 +151,7 @@ The application will run automatically when deployed to Render. Configure it as:
 
 - **Service Type**: Background Worker or Cron Job
 - **Build Command**: `npm install`
-- **Start Command**: `npm start`
+- **Start Command**: `npm start` or `node src/cli.js --url $FEED_URL`
 
 ## Feed Data Format
 
@@ -155,13 +187,16 @@ The transformer supports multiple field name variations:
 | HubSpot Field | Accepted Feed Fields |
 |--------------|---------------------|
 | assetId | `assetId`, `asset_id`, `id` |
+| assetReferenceId | `assetReferenceId`, `asset_reference_id`, `referenceId`, `reference_id` |
+| listingStartDate | `listingStartDate`, `listing_start_date`, `startDate`, `start_date` |
 | listPrice | `listPrice`, `list_price`, `price` |
 | listingStatus | `listingStatus`, `listing_status`, `status` |
 | squareFootage | `squareFootage`, `square_footage`, `sqft` |
 | bathrooms | `bathrooms`, `baths` |
 | bedrooms | `bedrooms`, `beds` |
 | zip | `zip`, `zipCode`, `zip_code`, `postal_code` |
-| address1 | `address1`, `address`, `street` |
+| addressLine1 | `addressLine1`, `address_line_1`, `address1`, `address`, `street` |
+| addressLine2 | `addressLine2`, `address_line_2`, `address2`, `unit` |
 | mediaUrl | `mediaUrl`, `media_url`, `imageUrl`, `image_url` |
 
 ## How It Works

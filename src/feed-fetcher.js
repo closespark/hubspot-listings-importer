@@ -1,9 +1,10 @@
 const axios = require('axios');
+const fs = require('fs');
 const logger = require('./logger');
 const config = require('./config');
 
 /**
- * Fetch JSON feed data from a URL
+ * Fetch JSON feed data from a URL or local file
  */
 class FeedFetcher {
   constructor() {
@@ -140,9 +141,42 @@ class FeedFetcher {
    * Fetch and validate feed
    */
   async getFeed() {
-    const url = config.get('feedUrl');
-    const data = await this.fetchFeed(url);
+    const feedSource = config.get('feedSource');
+    
+    let data;
+    if (feedSource === 'file') {
+      data = await this.fetchFromFile();
+    } else {
+      const url = config.get('feedUrl');
+      data = await this.fetchFeed(url);
+    }
+    
     return this.validateFeed(data);
+  }
+
+  /**
+   * Fetch feed from local file
+   */
+  async fetchFromFile() {
+    const filePath = config.get('feedFilePath');
+    logger.info(`Reading feed from file: ${filePath}`);
+
+    try {
+      if (!fs.existsSync(filePath)) {
+        throw new Error(`File not found: ${filePath}`);
+      }
+
+      const content = fs.readFileSync(filePath, 'utf8');
+      const data = JSON.parse(content);
+
+      logger.info('Feed file loaded successfully');
+      return data;
+    } catch (error) {
+      if (error instanceof SyntaxError) {
+        throw new Error(`Invalid JSON in file: ${error.message}`);
+      }
+      throw error;
+    }
   }
 }
 

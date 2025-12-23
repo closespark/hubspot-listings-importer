@@ -15,6 +15,16 @@ class DataTransformer {
       transformed.assetId = String(feedListing.assetId || feedListing.asset_id || feedListing.id);
     }
 
+    // Asset Reference ID
+    if (feedListing.assetReferenceId || feedListing.asset_reference_id || feedListing.referenceId || feedListing.reference_id) {
+      transformed.assetReferenceId = String(feedListing.assetReferenceId || feedListing.asset_reference_id || feedListing.referenceId || feedListing.reference_id);
+    }
+
+    // Listing Start Date
+    if (feedListing.listingStartDate || feedListing.listing_start_date || feedListing.startDate || feedListing.start_date) {
+      transformed.listingStartDate = this.parseDate(feedListing.listingStartDate || feedListing.listing_start_date || feedListing.startDate || feedListing.start_date);
+    }
+
     // Price fields
     if (feedListing.listPrice !== undefined || feedListing.list_price !== undefined || feedListing.price !== undefined) {
       const price = feedListing.listPrice || feedListing.list_price || feedListing.price;
@@ -74,12 +84,12 @@ class DataTransformer {
       transformed.county = String(feedListing.county);
     }
 
-    if (feedListing.address1 || feedListing.address || feedListing.street) {
-      transformed.address1 = String(feedListing.address1 || feedListing.address || feedListing.street);
+    if (feedListing.addressLine1 || feedListing.address_line_1 || feedListing.address1 || feedListing.address || feedListing.street) {
+      transformed.addressLine1 = String(feedListing.addressLine1 || feedListing.address_line_1 || feedListing.address1 || feedListing.address || feedListing.street);
     }
 
-    if (feedListing.address2 || feedListing.unit) {
-      transformed.address2 = String(feedListing.address2 || feedListing.unit);
+    if (feedListing.addressLine2 || feedListing.address_line_2 || feedListing.address2 || feedListing.unit) {
+      transformed.addressLine2 = String(feedListing.addressLine2 || feedListing.address_line_2 || feedListing.address2 || feedListing.unit);
     }
 
     // Media URL
