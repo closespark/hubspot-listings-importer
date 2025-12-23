@@ -162,16 +162,15 @@ class FeedFetcher {
     logger.info(`Reading feed from file: ${filePath}`);
 
     try {
-      if (!fs.existsSync(filePath)) {
-        throw new Error(`File not found: ${filePath}`);
-      }
-
       const content = fs.readFileSync(filePath, 'utf8');
       const data = JSON.parse(content);
 
       logger.info('Feed file loaded successfully');
       return data;
     } catch (error) {
+      if (error.code === 'ENOENT') {
+        throw new Error(`File not found: ${filePath}`);
+      }
       if (error instanceof SyntaxError) {
         throw new Error(`Invalid JSON in file: ${error.message}`);
       }

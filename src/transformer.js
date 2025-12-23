@@ -5,66 +5,87 @@ const logger = require('./logger');
  */
 class DataTransformer {
   /**
+   * Get the first available field value from a list of possible field names
+   */
+  getFirstAvailableField(feedListing, ...fieldNames) {
+    for (const fieldName of fieldNames) {
+      if (feedListing[fieldName] !== undefined && feedListing[fieldName] !== null) {
+        return feedListing[fieldName];
+      }
+    }
+    return null;
+  }
+
+  /**
    * Transform a single listing from feed format to HubSpot format
    */
   transformListing(feedListing) {
     const transformed = {};
 
     // Required fields
-    if (feedListing.assetId || feedListing.asset_id || feedListing.id) {
-      transformed.assetId = String(feedListing.assetId || feedListing.asset_id || feedListing.id);
+    const assetId = this.getFirstAvailableField(feedListing, 'assetId', 'asset_id', 'id');
+    if (assetId) {
+      transformed.assetId = String(assetId);
     }
 
     // Asset Reference ID
-    if (feedListing.assetReferenceId || feedListing.asset_reference_id || feedListing.referenceId || feedListing.reference_id) {
-      transformed.assetReferenceId = String(feedListing.assetReferenceId || feedListing.asset_reference_id || feedListing.referenceId || feedListing.reference_id);
+    const assetRefId = this.getFirstAvailableField(feedListing, 'assetReferenceId', 'asset_reference_id', 'referenceId', 'reference_id');
+    if (assetRefId) {
+      transformed.assetReferenceId = String(assetRefId);
     }
 
     // Listing Start Date
-    if (feedListing.listingStartDate || feedListing.listing_start_date || feedListing.startDate || feedListing.start_date) {
-      transformed.listingStartDate = this.parseDate(feedListing.listingStartDate || feedListing.listing_start_date || feedListing.startDate || feedListing.start_date);
+    const startDate = this.getFirstAvailableField(feedListing, 'listingStartDate', 'listing_start_date', 'startDate', 'start_date');
+    if (startDate) {
+      transformed.listingStartDate = this.parseDate(startDate);
     }
 
     // Price fields
-    if (feedListing.listPrice !== undefined || feedListing.list_price !== undefined || feedListing.price !== undefined) {
-      const price = feedListing.listPrice || feedListing.list_price || feedListing.price;
+    const price = this.getFirstAvailableField(feedListing, 'listPrice', 'list_price', 'price');
+    if (price !== null) {
       transformed.listPrice = this.parseNumber(price);
     }
 
     // Status fields
-    if (feedListing.listingStatus || feedListing.listing_status || feedListing.status) {
-      transformed.listingStatus = String(feedListing.listingStatus || feedListing.listing_status || feedListing.status);
+    const status = this.getFirstAvailableField(feedListing, 'listingStatus', 'listing_status', 'status');
+    if (status) {
+      transformed.listingStatus = String(status);
     }
 
     // Property type
-    if (feedListing.propertyType || feedListing.property_type || feedListing.type) {
-      transformed.propertyType = String(feedListing.propertyType || feedListing.property_type || feedListing.type);
+    const propType = this.getFirstAvailableField(feedListing, 'propertyType', 'property_type', 'type');
+    if (propType) {
+      transformed.propertyType = String(propType);
     }
 
     // Square footage
-    if (feedListing.squareFootage !== undefined || feedListing.square_footage !== undefined || feedListing.sqft !== undefined) {
-      const sqft = feedListing.squareFootage || feedListing.square_footage || feedListing.sqft;
+    const sqft = this.getFirstAvailableField(feedListing, 'squareFootage', 'square_footage', 'sqft');
+    if (sqft !== null) {
       transformed.squareFootage = this.parseNumber(sqft);
     }
 
     // Bathrooms
-    if (feedListing.bathrooms !== undefined || feedListing.baths !== undefined) {
-      transformed.bathrooms = this.parseNumber(feedListing.bathrooms || feedListing.baths);
+    const baths = this.getFirstAvailableField(feedListing, 'bathrooms', 'baths');
+    if (baths !== null) {
+      transformed.bathrooms = this.parseNumber(baths);
     }
 
     // Bedrooms
-    if (feedListing.bedrooms !== undefined || feedListing.beds !== undefined) {
-      transformed.bedrooms = this.parseNumber(feedListing.bedrooms || feedListing.beds);
+    const beds = this.getFirstAvailableField(feedListing, 'bedrooms', 'beds');
+    if (beds !== null) {
+      transformed.bedrooms = this.parseNumber(beds);
     }
 
     // Lot size
-    if (feedListing.lotSize !== undefined || feedListing.lot_size !== undefined) {
-      transformed.lotSize = this.parseNumber(feedListing.lotSize || feedListing.lot_size);
+    const lotSize = this.getFirstAvailableField(feedListing, 'lotSize', 'lot_size');
+    if (lotSize !== null) {
+      transformed.lotSize = this.parseNumber(lotSize);
     }
 
     // Lot size units
-    if (feedListing.lotSizeUnits || feedListing.lot_size_units) {
-      transformed.lotSizeUnits = String(feedListing.lotSizeUnits || feedListing.lot_size_units);
+    const lotSizeUnits = this.getFirstAvailableField(feedListing, 'lotSizeUnits', 'lot_size_units');
+    if (lotSizeUnits) {
+      transformed.lotSizeUnits = String(lotSizeUnits);
     }
 
     // Address fields
@@ -76,38 +97,45 @@ class DataTransformer {
       transformed.state = String(feedListing.state);
     }
 
-    if (feedListing.zip || feedListing.zipCode || feedListing.zip_code || feedListing.postal_code) {
-      transformed.zip = String(feedListing.zip || feedListing.zipCode || feedListing.zip_code || feedListing.postal_code);
+    const zip = this.getFirstAvailableField(feedListing, 'zip', 'zipCode', 'zip_code', 'postal_code');
+    if (zip) {
+      transformed.zip = String(zip);
     }
 
     if (feedListing.county) {
       transformed.county = String(feedListing.county);
     }
 
-    if (feedListing.addressLine1 || feedListing.address_line_1 || feedListing.address1 || feedListing.address || feedListing.street) {
-      transformed.addressLine1 = String(feedListing.addressLine1 || feedListing.address_line_1 || feedListing.address1 || feedListing.address || feedListing.street);
+    const address1 = this.getFirstAvailableField(feedListing, 'addressLine1', 'address_line_1', 'address1', 'address', 'street');
+    if (address1) {
+      transformed.addressLine1 = String(address1);
     }
 
-    if (feedListing.addressLine2 || feedListing.address_line_2 || feedListing.address2 || feedListing.unit) {
-      transformed.addressLine2 = String(feedListing.addressLine2 || feedListing.address_line_2 || feedListing.address2 || feedListing.unit);
+    const address2 = this.getFirstAvailableField(feedListing, 'addressLine2', 'address_line_2', 'address2', 'unit');
+    if (address2) {
+      transformed.addressLine2 = String(address2);
     }
 
     // Media URL
-    if (feedListing.mediaUrl || feedListing.media_url || feedListing.imageUrl || feedListing.image_url) {
-      transformed.mediaUrl = String(feedListing.mediaUrl || feedListing.media_url || feedListing.imageUrl || feedListing.image_url);
+    const mediaUrl = this.getFirstAvailableField(feedListing, 'mediaUrl', 'media_url', 'imageUrl', 'image_url');
+    if (mediaUrl) {
+      transformed.mediaUrl = String(mediaUrl);
     }
 
     // Auction fields
-    if (feedListing.auctionStatus || feedListing.auction_status) {
-      transformed.auctionStatus = String(feedListing.auctionStatus || feedListing.auction_status);
+    const auctionStatus = this.getFirstAvailableField(feedListing, 'auctionStatus', 'auction_status');
+    if (auctionStatus) {
+      transformed.auctionStatus = String(auctionStatus);
     }
 
-    if (feedListing.auctionStartDate || feedListing.auction_start_date) {
-      transformed.auctionStartDate = this.parseDate(feedListing.auctionStartDate || feedListing.auction_start_date);
+    const auctionStart = this.getFirstAvailableField(feedListing, 'auctionStartDate', 'auction_start_date');
+    if (auctionStart) {
+      transformed.auctionStartDate = this.parseDate(auctionStart);
     }
 
-    if (feedListing.auctionEndDate || feedListing.auction_end_date) {
-      transformed.auctionEndDate = this.parseDate(feedListing.auctionEndDate || feedListing.auction_end_date);
+    const auctionEnd = this.getFirstAvailableField(feedListing, 'auctionEndDate', 'auction_end_date');
+    if (auctionEnd) {
+      transformed.auctionEndDate = this.parseDate(auctionEnd);
     }
 
     return transformed;

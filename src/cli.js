@@ -24,15 +24,15 @@ async function main() {
   try {
     // Validate input
     if (!options.file && !options.url) {
-      logger.error('Either --file or --url must be provided');
+      logger.error('Error: Either --file or --url must be provided\n');
       program.help();
-      process.exit(1);
+      return; // Let help display before exit
     }
 
     if (options.file && options.url) {
-      logger.error('Cannot specify both --file and --url');
+      logger.error('Error: Cannot specify both --file and --url\n');
       program.help();
-      process.exit(1);
+      return; // Let help display before exit
     }
 
     // Set configuration based on CLI options
