@@ -25,7 +25,7 @@ The importer uses HubSpot-owned properties (hs_ prefix) and creates custom prope
 - ✅ hs_bedrooms (number)
 - ✅ hs_lot_size (number)
 - ✅ hs_city (string)
-- ✅ hs_state (string)
+- ✅ hs_state_province (string)
 - ✅ hs_zip (string)
 - ✅ hs_address_1 (string)
 - ✅ hs_address_2 (string)

@@ -152,7 +152,7 @@ const LISTINGS_PROPERTIES = [
   },
   // NOTE: The following HubSpot-owned properties are NOT defined here because they already
   // exist with hs_ prefix (e.g., hs_square_footage, hs_bedrooms, hs_bathrooms, hs_lot_size,
-  // hs_city, hs_state, hs_zip, hs_address_1, hs_address_2). We only define custom properties.
+  // hs_city, hs_state_province, hs_zip, hs_address_1, hs_address_2). We only define custom properties.
   {
     name: 'lot_size_units',
     label: 'Lot Size Units',
@@ -166,7 +166,7 @@ const LISTINGS_PROPERTIES = [
       { label: 'Square Meters', value: 'sqm' },
     ],
   },
-  // NOTE: hs_city, hs_state, hs_zip are HubSpot-owned properties - not defined here
+  // NOTE: hs_city, hs_state_province, hs_zip are HubSpot-owned properties - not defined here
   {
     name: 'state_code',
     label: 'State Code',
