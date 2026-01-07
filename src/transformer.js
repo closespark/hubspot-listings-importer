@@ -18,35 +18,35 @@ function inferPropertyType({ squareFootage, bedrooms, bathrooms, lotSize }) {
 
   // LAND
   if ((sf === 0 || sf < 400) && beds === 0 && baths === 0 && lot > 5000) {
-    return 'Land';
+    return 'land';
   }
 
   // MANUFACTURED
   if (sf >= 400 && sf <= 1800 && lot >= 3000 && lot <= 20000 && beds >= 1) {
-    return 'Manufactured';
+    return 'manufactured';
   }
 
   // MULTI-FAMILY
   if (beds >= 5 || baths >= 3.5 || (sf >= 2500 && beds >= 4)) {
-    return 'Multi-Family';
+    return 'multi_family';
   }
 
   // CONDO
   if (sf <= 1200 && beds <= 2 && (lot <= 2000 || lot === 0)) {
-    return 'Condo';
+    return 'condo';
   }
 
   // TOWNHOME
   if (sf >= 1200 && sf <= 2200 && lot >= 1000 && lot <= 4000) {
-    return 'Townhome';
+    return 'townhome';
   }
 
   // SINGLE FAMILY
   if (sf >= 1000 && lot >= 3000 && beds >= 2) {
-    return 'Single Family';
+    return 'single_family';
   }
 
-  return 'Other';
+  return 'other';
 }
 
 /**

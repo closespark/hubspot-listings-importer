@@ -31,98 +31,98 @@ function test(name, input, expected) {
 test(
   'Land - vacant lot with large lot size',
   { squareFootage: 0, bedrooms: 0, bathrooms: 0, lotSize: 10000 },
-  'Land'
+  'land'
 );
 
 test(
   'Land - tiny structure on large lot',
   { squareFootage: 200, bedrooms: 0, bathrooms: 0, lotSize: 50000 },
-  'Land'
+  'land'
 );
 
 // Test Manufactured detection
 test(
   'Manufactured - typical manufactured home',
   { squareFootage: 1400, bedrooms: 3, bathrooms: 2, lotSize: 10000 },
-  'Manufactured'
+  'manufactured'
 );
 
 test(
   'Manufactured - small manufactured home',
   { squareFootage: 400, bedrooms: 1, bathrooms: 1, lotSize: 3000 },
-  'Manufactured'
+  'manufactured'
 );
 
 // Test Multi-Family detection
 test(
   'Multi-Family - many bedrooms',
   { squareFootage: 3000, bedrooms: 5, bathrooms: 3, lotSize: 8000 },
-  'Multi-Family'
+  'multi_family'
 );
 
 test(
   'Multi-Family - many bathrooms',
   { squareFootage: 2000, bedrooms: 3, bathrooms: 4, lotSize: 6000 },
-  'Multi-Family'
+  'multi_family'
 );
 
 test(
   'Multi-Family - large with 4 bedrooms',
   { squareFootage: 2500, bedrooms: 4, bathrooms: 2, lotSize: 6000 },
-  'Multi-Family'
+  'multi_family'
 );
 
 // Test Condo detection
 test(
   'Condo - small unit with no lot',
   { squareFootage: 800, bedrooms: 1, bathrooms: 1, lotSize: 0 },
-  'Condo'
+  'condo'
 );
 
 test(
   'Condo - small unit with tiny lot',
   { squareFootage: 1000, bedrooms: 2, bathrooms: 1, lotSize: 1500 },
-  'Condo'
+  'condo'
 );
 
 // Test Townhome detection
 test(
   'Townhome - typical townhome',
   { squareFootage: 1500, bedrooms: 3, bathrooms: 2, lotSize: 2000 },
-  'Townhome'
+  'townhome'
 );
 
 test(
   'Townhome - larger townhome',
   { squareFootage: 2200, bedrooms: 4, bathrooms: 2.5, lotSize: 4000 },
-  'Townhome'
+  'townhome'
 );
 
 // Test Single Family detection
 test(
   'Single Family - standard home',
   { squareFootage: 2000, bedrooms: 3, bathrooms: 2, lotSize: 8000 },
-  'Single Family'
+  'single_family'
 );
 
 test(
   'Single Family - larger home (not multi-family due to fewer beds)',
   { squareFootage: 3500, bedrooms: 3, bathrooms: 2.5, lotSize: 12000 },
-  'Single Family'
+  'single_family'
 );
 
 // Test Other fallback
 test(
   'Other - unusual combination',
   { squareFootage: 500, bedrooms: 1, bathrooms: 1, lotSize: 2500 },
-  'Other'
+  'other'
 );
 
 // Test edge cases with string inputs
 test(
   'Handles string inputs - Land',
   { squareFootage: '0', bedrooms: '0', bathrooms: '0', lotSize: '15000' },
-  'Land'
+  'land'
 );
 
 // Per the function logic, when all values are 0/null/undefined,
@@ -130,13 +130,13 @@ test(
 test(
   'Handles null/undefined inputs - Condo (no lot, small/no structure)',
   { squareFootage: null, bedrooms: undefined, bathrooms: null, lotSize: null },
-  'Condo'
+  'condo'
 );
 
 test(
   'Handles missing inputs - Condo (no lot, small/no structure)',
   {},
-  'Condo'
+  'condo'
 );
 
 // Test transformer integration - listing without property_type should get inferred type
@@ -151,11 +151,11 @@ const testListing = {
 };
 
 const transformed = transformer.transformListing(testListing);
-if (transformed.property_type === 'Land') {
-  console.log('✓ Transformer correctly infers property_type as "Land" when not provided');
+if (transformed.property_type === 'land') {
+  console.log('✓ Transformer correctly infers property_type as "land" when not provided');
   testsPassed++;
 } else {
-  console.error(`✗ Transformer inference failed: expected "Land", got "${transformed.property_type}"`);
+  console.error(`✗ Transformer inference failed: expected "land", got "${transformed.property_type}"`);
   testsFailed++;
 }
 
