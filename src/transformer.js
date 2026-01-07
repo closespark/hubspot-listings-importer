@@ -170,7 +170,9 @@ class DataTransformer {
       transformed.isFeatured = this.parseBoolean(isFeatured);
     }
 
-    // marketingEligible defaults to true if not provided
+    // marketingEligible defaults to true if not provided.
+    // This ensures new listings are automatically eligible for marketing campaigns (emails, workflows).
+    // Override by explicitly setting marketingEligible: false in the feed data.
     const marketingEligible = this.getFirstAvailableField(feedListing, 'marketingEligible', 'marketing_eligible');
     if (marketingEligible !== null) {
       transformed.marketingEligible = this.parseBoolean(marketingEligible);
@@ -260,6 +262,8 @@ class DataTransformer {
       return STATE_NAME_TO_CODE[normalizedName];
     }
 
+    // Log when state derivation fails - useful for debugging workflow enrollment issues
+    logger.warn(`Could not derive stateCode from state value: "${state}"`);
     return null;
   }
 
