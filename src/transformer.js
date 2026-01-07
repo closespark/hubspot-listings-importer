@@ -64,6 +64,20 @@ class DataTransformer {
   }
 
   /**
+   * Format examples for warning message
+   * @param {Object} data - Warning data with count and examples
+   * @returns {string} Formatted examples string
+   */
+  formatWarningExamples(data) {
+    if (data.examples.length === 0) {
+      return '';
+    }
+    const quotedExamples = data.examples.map(e => `"${e}"`).join(', ');
+    const hasMore = data.count > data.examples.length;
+    return ` (examples: ${quotedExamples}${hasMore ? ', ...' : ''})`;
+  }
+
+  /**
    * Log aggregated warnings summary
    * Called after processing a batch of listings
    */
@@ -78,12 +92,13 @@ class DataTransformer {
     };
 
     let hasWarnings = false;
-    for (const [type, data] of Object.entries(this.warnings)) {
+    const warningTypes = Object.keys(this.warnings);
+    for (let i = 0; i < warningTypes.length; i++) {
+      const type = warningTypes[i];
+      const data = this.warnings[type];
       if (data.count > 0) {
         hasWarnings = true;
-        const examples = data.examples.length > 0 
-          ? ` (examples: ${data.examples.map(e => `"${e}"`).join(', ')}${data.count > data.examples.length ? ', ...' : ''})`
-          : '';
+        const examples = this.formatWarningExamples(data);
         logger.warn(`${warningMessages[type]}: ${data.count} occurrence(s)${examples}`);
       }
     }
