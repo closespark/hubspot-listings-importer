@@ -1,5 +1,5 @@
 const logger = require('./logger');
-const { US_STATE_CODES } = require('./properties');
+const { US_STATE_CODES, VALID_STATE_CODES } = require('./properties');
 
 /**
  * State name to code mapping for deriving stateCode
@@ -19,11 +19,6 @@ const STATE_NAME_TO_CODE = {
   'utah': 'UT', 'vermont': 'VT', 'virginia': 'VA', 'washington': 'WA',
   'west virginia': 'WV', 'wisconsin': 'WI', 'wyoming': 'WY',
 };
-
-/**
- * Valid state codes set for quick lookup
- */
-const VALID_STATE_CODES = new Set(US_STATE_CODES.map(s => s.value));
 
 /**
  * Transform JSON feed data to HubSpot Listings format
@@ -246,8 +241,8 @@ class DataTransformer {
       logger.warn(`Invalid stateCode provided: ${providedCode}`);
     }
 
-    // Try to derive from state field
-    const state = feedListing.state;
+    // Try to derive from state field using getFirstAvailableField for flexibility
+    const state = this.getFirstAvailableField(feedListing, 'state', 'state_name');
     if (!state) {
       return null;
     }

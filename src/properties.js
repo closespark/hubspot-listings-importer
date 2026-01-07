@@ -306,7 +306,13 @@ const LISTINGS_PROPERTIES = [
   },
 ];
 
+/**
+ * Valid state codes set for quick lookup
+ */
+const VALID_STATE_CODES = new Set(US_STATE_CODES.map(s => s.value));
+
 module.exports = {
   LISTINGS_PROPERTIES,
   US_STATE_CODES,
+  VALID_STATE_CODES,
 };
