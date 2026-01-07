@@ -199,9 +199,13 @@ The transformer supports multiple field name variations:
 | addressLine2 | `addressLine2`, `address_line_2`, `address2`, `unit` |
 | mediaUrl | `mediaUrl`, `media_url`, `imageUrl`, `image_url` |
 
+## Data Behavior & Defaults
+
+This section documents how the importer handles data transformation, automatic field derivation, and default values.
+
 ### Default Values
 
-The following fields have default behaviors:
+The following fields have automatic default behaviors when not explicitly provided in the feed:
 
 | Field | Default | Description |
 |-------|---------|-------------|
@@ -210,9 +214,57 @@ The following fields have default behaviors:
 ### State Code Derivation
 
 The `stateCode` field is automatically derived from the `state` field:
+
+- If `stateCode` is already provided and is a valid 2-letter code, it's used directly
 - If `state` is a valid 2-letter code (e.g., "CA", "NY"), it's used directly
 - If `state` is a full name (e.g., "California"), it's converted to the code
-- If derivation fails, a warning is logged and `stateCode` remains unset
+- If derivation fails, `stateCode` remains unset (warnings are aggregated in the summary)
+
+### Date Parsing
+
+Dates are parsed with the following rules:
+
+- **Numeric timestamps**: Interpreted as Unix timestamps (seconds or milliseconds)
+- **String dates**: Parsed using JavaScript's `Date` constructor
+- **Valid range**: Dates must be between years 1900 and 2100
+- **Invalid dates**: Logged as warnings and the field remains unset
+
+## Operational Notes
+
+This section covers logging behavior and operational considerations for running the importer at scale.
+
+### Aggregated Warnings
+
+To prevent log flooding when processing large feeds, the importer aggregates transformation warnings by type and reports a summary at the end of each batch. This includes:
+
+- **State code derivation failures**: When `stateCode` cannot be derived from the `state` field
+- **Invalid state codes**: When provided `stateCode` values don't match valid US state codes
+- **Date parsing issues**: Invalid dates, dates out of range, or unsupported date formats
+
+Example summary output:
+```
+[WARN] Could not derive stateCode from state values: 15 occurrence(s) (examples: "Unknown State", "XX", "Atlantis", ...)
+[WARN] Invalid date values encountered: 3 occurrence(s) (examples: "not-a-date", "2025-99-99", ...)
+[INFO] For details on individual warnings, set LOG_LEVEL=debug
+```
+
+### Debug Mode
+
+Set `LOG_LEVEL=debug` to see individual warnings for each record, including:
+
+- Each failed state code derivation with the specific value
+- Each invalid date with the problematic value
+- API request and response details
+
+This is useful for debugging feed data quality issues but may produce verbose output for large feeds.
+
+### Scaling Considerations
+
+When processing large feeds (10,000+ listings):
+
+- **Batch size**: Adjust `BATCH_SIZE` to balance memory usage and API efficiency
+- **Logging verbosity**: Keep `LOG_LEVEL=info` or `LOG_LEVEL=warn` to avoid excessive log volume
+- **Error isolation**: Individual listing failures don't stop the batch; errors are collected and reported in the summary
 
 ## How It Works
 
