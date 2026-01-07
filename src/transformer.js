@@ -280,6 +280,48 @@ class DataTransformer {
       transformed.auction_end_date = this.parseDate(auctionEnd);
     }
 
+    // REQUIRED by HubSpot: hs_name
+    // Generate hs_name from address components if not already provided in the feed
+    if (!transformed.hs_name) {
+      const parts = [];
+
+      // Street address
+      if (transformed.hs_address_1) {
+        let street = transformed.hs_address_1;
+
+        if (transformed.hs_address_2) {
+          street += ` ${transformed.hs_address_2}`;
+        }
+
+        parts.push(street);
+      }
+
+      // City
+      if (transformed.hs_city) {
+        parts.push(transformed.hs_city);
+      }
+
+      // State + ZIP
+      const stateZip = [];
+      if (transformed.hs_state_province) {
+        stateZip.push(transformed.hs_state_province);
+      }
+      if (transformed.hs_zip) {
+        stateZip.push(transformed.hs_zip);
+      }
+      if (stateZip.length) {
+        parts.push(stateZip.join(' '));
+      }
+
+      // Final fallback (HubSpot requires hs_name)
+      transformed.hs_name =
+        parts.length > 0
+          ? parts.join(', ')
+          : transformed.external_listing_id
+            ? `Listing ${transformed.external_listing_id}`
+            : 'Listing';
+    }
+
     return transformed;
   }
 
