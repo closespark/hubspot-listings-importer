@@ -37,7 +37,6 @@ These properties are created and managed by the importer:
 - `listing_end_date` - When listing ended or expires
 - `list_price` - Listing price
 - `listing_status` - Current status (dropdown: For Sale, Under Contract, Sold, Withdrawn, Expired)
-- `property_type` - Type of property (dropdown: Single Family, Condo, Townhome, Multi-Family, Land, Manufactured, Other)
 - `lot_size_units` - Units for lot size (dropdown: Square Feet, Acres, Square Meters)
 - `state_code` - US state code dropdown (e.g., CA, NY, TX)
 - `county` - County
@@ -49,6 +48,17 @@ These properties are created and managed by the importer:
 - `auction_status` - Auction status (dropdown: Not on Auction, Upcoming, Active, Ended, Sold)
 - `auction_start_date` - Auction start date
 - `auction_end_date` - Auction end date
+
+### HubSpot Native Listing Type (hs_listing_type)
+The importer automatically infers and writes to the HubSpot-owned `hs_listing_type` field based on property characteristics.
+Valid values (HubSpot internal enum):
+- `house` - Standard single-family home (default)
+- `townhouse` - Townhouse/row house
+- `multi_family` - Multi-family property
+- `condos_co_ops` - Condos or co-ops
+- `lots_land` - Vacant lots or land
+- `apartments` - Apartment buildings
+- `manufactured` - Manufactured/mobile homes
 
 ## Prerequisites
 
@@ -219,7 +229,6 @@ The transformer supports multiple field name variations:
 | listing_end_date | `listingEndDate`, `listing_end_date`, `endDate`, `end_date` |
 | list_price | `listPrice`, `list_price`, `price` |
 | listing_status | `listingStatus`, `listing_status`, `status` |
-| property_type | `propertyType`, `property_type`, `type` |
 | hs_square_footage | `squareFootage`, `square_footage`, `sqft` |
 | hs_bathrooms | `bathrooms`, `baths` |
 | hs_bedrooms | `bedrooms`, `beds` |

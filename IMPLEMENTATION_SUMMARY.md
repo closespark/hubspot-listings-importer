@@ -37,7 +37,6 @@ The importer uses HubSpot-owned properties (hs_ prefix) and creates custom prope
 - ✅ listing_end_date (date)
 - ✅ list_price (number)
 - ✅ listing_status (enumeration)
-- ✅ property_type (enumeration)
 - ✅ lot_size_units (enumeration)
 - ✅ state_code (enumeration)
 - ✅ county (string)
@@ -49,6 +48,10 @@ The importer uses HubSpot-owned properties (hs_ prefix) and creates custom prope
 - ✅ auction_status (enumeration)
 - ✅ auction_start_date (date)
 - ✅ auction_end_date (date)
+
+**HubSpot Native Property (hs_listing_type):**
+- ✅ hs_listing_type is automatically inferred based on property characteristics
+- Valid values: house, townhouse, multi_family, condos_co_ops, lots_land, apartments, manufactured
 
 ### 4. Data Transformation
 - ✅ Flexible field mapping supporting multiple naming conventions
@@ -249,7 +252,7 @@ node test-transformer.js  # Transformer tests
 
 ## Success Metrics
 
-- ✅ All 19 required properties implemented
+- ✅ All 17 custom properties + hs_listing_type (HubSpot-owned) implemented
 - ✅ 0 security vulnerabilities
 - ✅ 0 CodeQL alerts
 - ✅ 100% of integration tests passing

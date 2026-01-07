@@ -36,7 +36,7 @@ try {
   
   const expectedProps = [
     'external_listing_id', 'reference_id', 'listing_start_date', 'listing_end_date',
-    'list_price', 'listing_status', 'property_type',
+    'list_price', 'listing_status',
     'lot_size_units',
     'state_code', 'county',
     'listing_url', 'primary_image_url',

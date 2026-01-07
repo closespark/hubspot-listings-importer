@@ -2,51 +2,53 @@ const logger = require('./logger');
 const { US_STATE_CODES, VALID_STATE_CODES } = require('./properties');
 
 /**
- * Infer property type based on property characteristics
+ * Infer HubSpot listing type based on property characteristics
+ * Uses HubSpot's native hs_listing_type enum values
  * @param {Object} params - Property characteristics
  * @param {number|string} params.squareFootage - Square footage of the property
  * @param {number|string} params.bedrooms - Number of bedrooms
  * @param {number|string} params.bathrooms - Number of bathrooms
  * @param {number|string} params.lotSize - Lot size in square feet
- * @returns {string} Inferred property type
+ * @returns {string} Inferred HubSpot listing type (internal enum value)
  */
-function inferPropertyType({ squareFootage, bedrooms, bathrooms, lotSize }) {
+function inferHsListingType({ squareFootage, bedrooms, bathrooms, lotSize }) {
   const sf = Number(squareFootage) || 0;
   const beds = Number(bedrooms) || 0;
   const baths = Number(bathrooms) || 0;
   const lot = Number(lotSize) || 0;
 
-  // LAND
-  if ((sf === 0 || sf < 400) && beds === 0 && baths === 0 && lot > 5000) {
-    return 'Land';
+  // Lots / Land
+  if (sf === 0 && beds === 0 && baths === 0 && lot >= 5000) {
+    return 'lots_land';
   }
 
-  // MANUFACTURED
+  // Manufactured
   if (sf >= 400 && sf <= 1800 && lot >= 3000 && lot <= 20000 && beds >= 1) {
-    return 'Manufactured';
+    return 'manufactured';
   }
 
-  // MULTI-FAMILY
+  // Apartments / Multi-Family
   if (beds >= 5 || baths >= 3.5 || (sf >= 2500 && beds >= 4)) {
-    return 'Multi-Family';
+    return 'multi_family';
   }
 
-  // CONDO
-  if (sf <= 1200 && beds <= 2 && (lot <= 2000 || lot === 0)) {
-    return 'Condo';
+  // Condos / Co-ops
+  if (sf > 0 && sf <= 1200 && beds <= 2 && lot < 1000) {
+    return 'condos_co_ops';
   }
 
-  // TOWNHOME
+  // Townhouse
   if (sf >= 1200 && sf <= 2200 && lot >= 1000 && lot <= 4000) {
-    return 'Townhome';
+    return 'townhouse';
   }
 
-  // SINGLE FAMILY
-  if (sf >= 1000 && lot >= 3000 && beds >= 2) {
-    return 'Single Family';
+  // House (default residential)
+  if (sf >= 1000 && beds >= 2) {
+    return 'house';
   }
 
-  return 'Other';
+  // Fallback
+  return 'house';
 }
 
 /**
@@ -210,12 +212,6 @@ class DataTransformer {
       transformed.listing_status = String(status);
     }
 
-    // Property type
-    const propType = this.getFirstAvailableField(feedListing, 'propertyType', 'property_type', 'type');
-    if (propType) {
-      transformed.property_type = String(propType);
-    }
-
     // Square footage
     const sqft = this.getFirstAvailableField(feedListing, 'squareFootage', 'square_footage', 'sqft');
     if (sqft !== null) {
@@ -240,15 +236,13 @@ class DataTransformer {
       transformed.hs_lot_size = this.parseNumber(lotSize);
     }
 
-    // Infer property type if not provided
-    if (!transformed.property_type) {
-      transformed.property_type = inferPropertyType({
-        squareFootage: transformed.hs_square_footage,
-        bedrooms: transformed.hs_bedrooms,
-        bathrooms: transformed.hs_bathrooms,
-        lotSize: transformed.hs_lot_size,
-      });
-    }
+    // Infer hs_listing_type using HubSpot native enum values
+    transformed.hs_listing_type = inferHsListingType({
+      squareFootage: transformed.hs_square_footage,
+      bedrooms: transformed.hs_bedrooms,
+      bathrooms: transformed.hs_bathrooms,
+      lotSize: transformed.hs_lot_size,
+    });
 
     // Lot size units
     const lotSizeUnits = this.getFirstAvailableField(feedListing, 'lotSizeUnits', 'lot_size_units');
@@ -540,6 +534,6 @@ class DataTransformer {
 }
 
 const transformer = new DataTransformer();
-transformer.inferPropertyType = inferPropertyType;
+transformer.inferHsListingType = inferHsListingType;
 
 module.exports = transformer;

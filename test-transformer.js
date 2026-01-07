@@ -43,12 +43,27 @@ transformed.forEach((listing, index) => {
     console.error(`ERROR: Listing ${index + 1} missing hs_name`);
     allValid = false;
   }
+  // Verify hs_listing_type is present and uses valid HubSpot internal values
+  const validHsListingTypes = ['house', 'townhouse', 'multi_family', 'condos_co_ops', 'lots_land', 'apartments', 'manufactured'];
+  if (!listing.hs_listing_type) {
+    console.error(`ERROR: Listing ${index + 1} missing hs_listing_type`);
+    allValid = false;
+  } else if (!validHsListingTypes.includes(listing.hs_listing_type)) {
+    console.error(`ERROR: Listing ${index + 1} has invalid hs_listing_type: "${listing.hs_listing_type}"`);
+    allValid = false;
+  }
+  // Ensure property_type is NOT present (we've migrated to hs_listing_type)
+  if (listing.property_type !== undefined) {
+    console.error(`ERROR: Listing ${index + 1} should not have property_type (use hs_listing_type instead)`);
+    allValid = false;
+  }
 });
 
 if (allValid) {
-  console.log('✓ All listings have required fields (external_listing_id, hs_name)');
+  console.log('✓ All listings have required fields (external_listing_id, hs_name, hs_listing_type)');
+  console.log('✓ No listings have property_type (correctly migrated to hs_listing_type)');
   process.exit(0);
 } else {
-  console.error('✗ Some listings are missing required fields');
+  console.error('✗ Some listings are missing required fields or have invalid values');
   process.exit(1);
 }
