@@ -199,6 +199,21 @@ The transformer supports multiple field name variations:
 | addressLine2 | `addressLine2`, `address_line_2`, `address2`, `unit` |
 | mediaUrl | `mediaUrl`, `media_url`, `imageUrl`, `image_url` |
 
+### Default Values
+
+The following fields have default behaviors:
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| `marketingEligible` | `true` | Listings are marketing-eligible by default, making them available for email campaigns, workflows, and automation. Set explicitly to `false` in your feed to opt out. |
+
+### State Code Derivation
+
+The `stateCode` field is automatically derived from the `state` field:
+- If `state` is a valid 2-letter code (e.g., "CA", "NY"), it's used directly
+- If `state` is a full name (e.g., "California"), it's converted to the code
+- If derivation fails, a warning is logged and `stateCode` remains unset
+
 ## How It Works
 
 1. **Initialize**: Ensures the Listings custom object exists in HubSpot
