@@ -15,36 +15,40 @@ A Node.js tool that imports JSON real estate feeds into HubSpot Listings objects
 
 ## Supported Properties
 
-The importer creates and manages the following Listings properties (21 total):
+The importer uses both HubSpot-owned properties (prefixed with `hs_`) and custom properties:
 
-### Property Details
-- `assetId` - Unique identifier (required)
-- `assetReferenceId` - Secondary reference ID
-- `listingStartDate` - When listing became active
-- `listPrice` - Listing price
-- `listingStatus` - Current status (dropdown: Active, Pending, Sold, Withdrawn, Expired, Contingent)
-- `propertyType` - Type of property (dropdown: Single Family, Condo, Townhouse, Multi-Family, Land, Commercial, Other)
+### HubSpot-Owned Properties (hs_ prefix)
+These properties are auto-created by HubSpot and are referenced using their correct internal names:
+- `hs_square_footage` - Square footage
+- `hs_bathrooms` - Number of bathrooms
+- `hs_bedrooms` - Number of bedrooms
+- `hs_lot_size` - Lot size value
+- `hs_city` - City
+- `hs_state` - State
+- `hs_zip` - ZIP/Postal code
+- `hs_address_1` - Primary address line
+- `hs_address_2` - Secondary address line
 
-### Property Specifications
-- `squareFootage` - Square footage
-- `bathrooms` - Number of bathrooms
-- `bedrooms` - Number of bedrooms
-- `lotSize` - Lot size value
-- `lotSizeUnits` - Units for lot size (dropdown: Square Feet, Acres, Square Meters)
-
-### Location Information
-- `city` - City
-- `state` - State
-- `zip` - ZIP/Postal code
+### Custom Properties
+These properties are created and managed by the importer:
+- `external_listing_id` - Unique identifier (required)
+- `reference_id` - Secondary reference ID
+- `listing_start_date` - When listing became active
+- `listing_end_date` - When listing ended or expires
+- `list_price` - Listing price
+- `listing_status` - Current status (dropdown: For Sale, Under Contract, Sold, Withdrawn, Expired)
+- `property_type` - Type of property (dropdown: Single Family, Condo, Townhome, Multi-Family, Land, Manufactured, Other)
+- `lot_size_units` - Units for lot size (dropdown: Square Feet, Acres, Square Meters)
+- `state_code` - US state code dropdown (e.g., CA, NY, TX)
 - `county` - County
-- `addressLine1` - Primary address line
-- `addressLine2` - Secondary address line
-
-### Media and Auction
-- `mediaUrl` - URL to property media/images
-- `auctionStatus` - Auction status (dropdown: Not on Auction, Upcoming, Active, Ended, Sold)
-- `auctionStartDate` - Auction start date
-- `auctionEndDate` - Auction end date
+- `listing_url` - URL to the property listing page
+- `primary_image_url` - URL to the main property image
+- `is_new_listing` - Whether this is a new listing
+- `is_featured` - Whether this listing is featured
+- `marketing_eligible` - Whether this listing is eligible for marketing campaigns
+- `auction_status` - Auction status (dropdown: Not on Auction, Upcoming, Active, Ended, Sold)
+- `auction_start_date` - Auction start date
+- `auction_end_date` - Auction end date
 
 ## Prerequisites
 
@@ -207,20 +211,35 @@ The importer supports flexible JSON feed formats. The feed can be:
 
 The transformer supports multiple field name variations:
 
-| HubSpot Field | Accepted Feed Fields |
-|--------------|---------------------|
-| assetId | `assetId`, `asset_id`, `id` |
-| assetReferenceId | `assetReferenceId`, `asset_reference_id`, `referenceId`, `reference_id` |
-| listingStartDate | `listingStartDate`, `listing_start_date`, `startDate`, `start_date` |
-| listPrice | `listPrice`, `list_price`, `price` |
-| listingStatus | `listingStatus`, `listing_status`, `status` |
-| squareFootage | `squareFootage`, `square_footage`, `sqft` |
-| bathrooms | `bathrooms`, `baths` |
-| bedrooms | `bedrooms`, `beds` |
-| zip | `zip`, `zipCode`, `zip_code`, `postal_code` |
-| addressLine1 | `addressLine1`, `address_line_1`, `address1`, `address`, `street` |
-| addressLine2 | `addressLine2`, `address_line_2`, `address2`, `unit` |
-| mediaUrl | `mediaUrl`, `media_url`, `imageUrl`, `image_url` |
+| HubSpot Property | Accepted Feed Fields |
+|-----------------|---------------------|
+| external_listing_id | `externalListingId`, `external_listing_id`, `assetId`, `asset_id`, `id` |
+| reference_id | `referenceId`, `reference_id`, `assetReferenceId`, `asset_reference_id` |
+| listing_start_date | `listingStartDate`, `listing_start_date`, `startDate`, `start_date` |
+| listing_end_date | `listingEndDate`, `listing_end_date`, `endDate`, `end_date` |
+| list_price | `listPrice`, `list_price`, `price` |
+| listing_status | `listingStatus`, `listing_status`, `status` |
+| property_type | `propertyType`, `property_type`, `type` |
+| hs_square_footage | `squareFootage`, `square_footage`, `sqft` |
+| hs_bathrooms | `bathrooms`, `baths` |
+| hs_bedrooms | `bedrooms`, `beds` |
+| hs_lot_size | `lotSize`, `lot_size` |
+| lot_size_units | `lotSizeUnits`, `lot_size_units` |
+| hs_city | `city` |
+| hs_state | `state` |
+| state_code | `stateCode`, `state_code` (auto-derived from state) |
+| hs_zip | `zip`, `zipCode`, `zip_code`, `postal_code` |
+| county | `county` |
+| hs_address_1 | `addressLine1`, `address_line_1`, `address1`, `address`, `street` |
+| hs_address_2 | `addressLine2`, `address_line_2`, `address2`, `unit` |
+| listing_url | `listingUrl`, `listing_url`, `propertyUrl`, `property_url`, `url` |
+| primary_image_url | `primaryImageUrl`, `primary_image_url`, `imageUrl`, `image_url`, `mediaUrl`, `media_url` |
+| is_new_listing | `isNewListing`, `is_new_listing`, `isNew`, `is_new` |
+| is_featured | `isFeatured`, `is_featured`, `featured` |
+| marketing_eligible | `marketingEligible`, `marketing_eligible` |
+| auction_status | `auctionStatus`, `auction_status` |
+| auction_start_date | `auctionStartDate`, `auction_start_date` |
+| auction_end_date | `auctionEndDate`, `auction_end_date` |
 
 ## Data Behavior & Defaults
 

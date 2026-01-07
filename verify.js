@@ -37,8 +37,8 @@ try {
   const expectedProps = [
     'external_listing_id', 'reference_id', 'listing_start_date', 'listing_end_date',
     'list_price', 'listing_status', 'property_type',
-    'square_footage', 'bathrooms', 'bedrooms', 'lot_size', 'lot_size_units',
-    'city', 'state', 'state_code', 'zip', 'county', 'address_line_1', 'address_line_2',
+    'lot_size_units',
+    'state_code', 'county',
     'listing_url', 'primary_image_url',
     'is_new_listing', 'is_featured', 'marketing_eligible',
     'auction_status', 'auction_start_date', 'auction_end_date'
@@ -76,11 +76,11 @@ try {
   if (transformed.external_listing_id !== 'TEST-001') {
     throw new Error('external_listing_id not transformed correctly');
   }
-  if (transformed.bedrooms !== 3) {
-    throw new Error('bedrooms mapping failed');
+  if (transformed.hs_bedrooms !== 3) {
+    throw new Error('hs_bedrooms mapping failed');
   }
-  if (transformed.bathrooms !== 2) {
-    throw new Error('bathrooms mapping failed');
+  if (transformed.hs_bathrooms !== 2) {
+    throw new Error('hs_bathrooms mapping failed');
   }
   if (transformed.state_code !== 'CA') {
     throw new Error('state_code derivation failed');

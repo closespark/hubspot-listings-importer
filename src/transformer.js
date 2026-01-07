@@ -171,25 +171,25 @@ class DataTransformer {
     // Square footage
     const sqft = this.getFirstAvailableField(feedListing, 'squareFootage', 'square_footage', 'sqft');
     if (sqft !== null) {
-      transformed.square_footage = this.parseNumber(sqft);
+      transformed.hs_square_footage = this.parseNumber(sqft);
     }
 
     // Bathrooms
     const baths = this.getFirstAvailableField(feedListing, 'bathrooms', 'baths');
     if (baths !== null) {
-      transformed.bathrooms = this.parseNumber(baths);
+      transformed.hs_bathrooms = this.parseNumber(baths);
     }
 
     // Bedrooms
     const beds = this.getFirstAvailableField(feedListing, 'bedrooms', 'beds');
     if (beds !== null) {
-      transformed.bedrooms = this.parseNumber(beds);
+      transformed.hs_bedrooms = this.parseNumber(beds);
     }
 
     // Lot size
     const lotSize = this.getFirstAvailableField(feedListing, 'lotSize', 'lot_size');
     if (lotSize !== null) {
-      transformed.lot_size = this.parseNumber(lotSize);
+      transformed.hs_lot_size = this.parseNumber(lotSize);
     }
 
     // Lot size units
@@ -200,11 +200,11 @@ class DataTransformer {
 
     // Address fields
     if (feedListing.city) {
-      transformed.city = String(feedListing.city);
+      transformed.hs_city = String(feedListing.city);
     }
 
     if (feedListing.state) {
-      transformed.state = String(feedListing.state);
+      transformed.hs_state = String(feedListing.state);
     }
 
     // Derive state_code from state or use provided stateCode
@@ -215,7 +215,7 @@ class DataTransformer {
 
     const zip = this.getFirstAvailableField(feedListing, 'zip', 'zipCode', 'zip_code', 'postal_code');
     if (zip) {
-      transformed.zip = String(zip);
+      transformed.hs_zip = String(zip);
     }
 
     if (feedListing.county) {
@@ -224,12 +224,12 @@ class DataTransformer {
 
     const address1 = this.getFirstAvailableField(feedListing, 'addressLine1', 'address_line_1', 'address1', 'address', 'street');
     if (address1) {
-      transformed.address_line_1 = String(address1);
+      transformed.hs_address_1 = String(address1);
     }
 
     const address2 = this.getFirstAvailableField(feedListing, 'addressLine2', 'address_line_2', 'address2', 'unit');
     if (address2) {
-      transformed.address_line_2 = String(address2);
+      transformed.hs_address_2 = String(address2);
     }
 
     // URL fields
