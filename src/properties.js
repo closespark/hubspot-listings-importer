@@ -1,5 +1,24 @@
 /**
- * US State codes for the stateCode dropdown
+ * Normalize a property name to snake_case format required by HubSpot.
+ * HubSpot requires property names to be lowercase + underscore only.
+ * 
+ * This utility is exported for use by consumers who need to dynamically
+ * convert camelCase property names to HubSpot-compatible snake_case format.
+ * 
+ * @param {string} name - Property name (can be camelCase or snake_case)
+ * @returns {string} Normalized snake_case property name
+ * @example
+ * normalizePropertyName('externalListingId') // => 'external_listing_id'
+ * normalizePropertyName('listPrice') // => 'list_price'
+ */
+function normalizePropertyName(name) {
+  return name
+    .replace(/([a-z])([A-Z])/g, '$1_$2') // camelCase → snake_case
+    .toLowerCase();
+}
+
+/**
+ * US State codes for the state_code dropdown
  */
 const US_STATE_CODES = [
   { label: 'Alabama', value: 'AL' },
@@ -60,7 +79,7 @@ const US_STATE_CODES = [
  */
 const LISTINGS_PROPERTIES = [
   {
-    name: 'externalListingId',
+    name: 'external_listing_id',
     label: 'External Listing ID',
     type: 'string',
     fieldType: 'text',
@@ -68,7 +87,7 @@ const LISTINGS_PROPERTIES = [
     description: 'Unique external identifier for the listing',
   },
   {
-    name: 'referenceId',
+    name: 'reference_id',
     label: 'Reference ID',
     type: 'string',
     fieldType: 'text',
@@ -76,7 +95,7 @@ const LISTINGS_PROPERTIES = [
     description: 'Secondary reference identifier for the listing',
   },
   {
-    name: 'listingStartDate',
+    name: 'listing_start_date',
     label: 'Listing Start Date',
     type: 'date',
     fieldType: 'date',
@@ -84,7 +103,7 @@ const LISTINGS_PROPERTIES = [
     description: 'Date when the listing became active',
   },
   {
-    name: 'listingEndDate',
+    name: 'listing_end_date',
     label: 'Listing End Date',
     type: 'date',
     fieldType: 'date',
@@ -92,7 +111,7 @@ const LISTINGS_PROPERTIES = [
     description: 'Date when the listing ended or expires',
   },
   {
-    name: 'listPrice',
+    name: 'list_price',
     label: 'List Price',
     type: 'number',
     fieldType: 'number',
@@ -100,7 +119,7 @@ const LISTINGS_PROPERTIES = [
     description: 'Listing price in dollars',
   },
   {
-    name: 'listingStatus',
+    name: 'listing_status',
     label: 'Listing Status',
     type: 'enumeration',
     fieldType: 'select',
@@ -115,7 +134,7 @@ const LISTINGS_PROPERTIES = [
     ],
   },
   {
-    name: 'propertyType',
+    name: 'property_type',
     label: 'Property Type',
     type: 'enumeration',
     fieldType: 'select',
@@ -132,7 +151,7 @@ const LISTINGS_PROPERTIES = [
     ],
   },
   {
-    name: 'squareFootage',
+    name: 'square_footage',
     label: 'Square Footage',
     type: 'number',
     fieldType: 'number',
@@ -156,7 +175,7 @@ const LISTINGS_PROPERTIES = [
     description: 'Number of bedrooms',
   },
   {
-    name: 'lotSize',
+    name: 'lot_size',
     label: 'Lot Size',
     type: 'number',
     fieldType: 'number',
@@ -164,7 +183,7 @@ const LISTINGS_PROPERTIES = [
     description: 'Size of the lot',
   },
   {
-    name: 'lotSizeUnits',
+    name: 'lot_size_units',
     label: 'Lot Size Units',
     type: 'enumeration',
     fieldType: 'select',
@@ -193,7 +212,7 @@ const LISTINGS_PROPERTIES = [
     description: 'State where property is located',
   },
   {
-    name: 'stateCode',
+    name: 'state_code',
     label: 'State Code',
     type: 'enumeration',
     fieldType: 'select',
@@ -218,7 +237,7 @@ const LISTINGS_PROPERTIES = [
     description: 'County where property is located',
   },
   {
-    name: 'addressLine1',
+    name: 'address_line_1',
     label: 'Address Line 1',
     type: 'string',
     fieldType: 'text',
@@ -226,7 +245,7 @@ const LISTINGS_PROPERTIES = [
     description: 'Primary address line',
   },
   {
-    name: 'addressLine2',
+    name: 'address_line_2',
     label: 'Address Line 2',
     type: 'string',
     fieldType: 'text',
@@ -234,7 +253,7 @@ const LISTINGS_PROPERTIES = [
     description: 'Secondary address line (apt, suite, etc.)',
   },
   {
-    name: 'listingUrl',
+    name: 'listing_url',
     label: 'Listing URL',
     type: 'string',
     fieldType: 'text',
@@ -242,7 +261,7 @@ const LISTINGS_PROPERTIES = [
     description: 'URL to the property listing page',
   },
   {
-    name: 'primaryImageUrl',
+    name: 'primary_image_url',
     label: 'Primary Image URL',
     type: 'string',
     fieldType: 'text',
@@ -250,7 +269,7 @@ const LISTINGS_PROPERTIES = [
     description: 'URL to the main property image',
   },
   {
-    name: 'isNewListing',
+    name: 'is_new_listing',
     label: 'Is New Listing',
     type: 'bool',
     fieldType: 'booleancheckbox',
@@ -258,7 +277,7 @@ const LISTINGS_PROPERTIES = [
     description: 'Whether this is a new listing',
   },
   {
-    name: 'isFeatured',
+    name: 'is_featured',
     label: 'Is Featured',
     type: 'bool',
     fieldType: 'booleancheckbox',
@@ -266,7 +285,7 @@ const LISTINGS_PROPERTIES = [
     description: 'Whether this listing is featured',
   },
   {
-    name: 'marketingEligible',
+    name: 'marketing_eligible',
     label: 'Marketing Eligible',
     type: 'bool',
     fieldType: 'booleancheckbox',
@@ -274,7 +293,7 @@ const LISTINGS_PROPERTIES = [
     description: 'Whether this listing is eligible for marketing campaigns',
   },
   {
-    name: 'auctionStatus',
+    name: 'auction_status',
     label: 'Auction Status',
     type: 'enumeration',
     fieldType: 'select',
@@ -289,7 +308,7 @@ const LISTINGS_PROPERTIES = [
     ],
   },
   {
-    name: 'auctionStartDate',
+    name: 'auction_start_date',
     label: 'Auction Start Date',
     type: 'date',
     fieldType: 'date',
@@ -297,7 +316,7 @@ const LISTINGS_PROPERTIES = [
     description: 'Date when auction starts',
   },
   {
-    name: 'auctionEndDate',
+    name: 'auction_end_date',
     label: 'Auction End Date',
     type: 'date',
     fieldType: 'date',
@@ -315,4 +334,5 @@ module.exports = {
   LISTINGS_PROPERTIES,
   US_STATE_CODES,
   VALID_STATE_CODES,
+  normalizePropertyName,
 };

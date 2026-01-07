@@ -35,13 +35,13 @@ try {
   const { LISTINGS_PROPERTIES } = require('./src/properties');
   
   const expectedProps = [
-    'externalListingId', 'referenceId', 'listingStartDate', 'listingEndDate',
-    'listPrice', 'listingStatus', 'propertyType',
-    'squareFootage', 'bathrooms', 'bedrooms', 'lotSize', 'lotSizeUnits',
-    'city', 'state', 'stateCode', 'zip', 'county', 'addressLine1', 'addressLine2',
-    'listingUrl', 'primaryImageUrl',
-    'isNewListing', 'isFeatured', 'marketingEligible',
-    'auctionStatus', 'auctionStartDate', 'auctionEndDate'
+    'external_listing_id', 'reference_id', 'listing_start_date', 'listing_end_date',
+    'list_price', 'listing_status', 'property_type',
+    'square_footage', 'bathrooms', 'bedrooms', 'lot_size', 'lot_size_units',
+    'city', 'state', 'state_code', 'zip', 'county', 'address_line_1', 'address_line_2',
+    'listing_url', 'primary_image_url',
+    'is_new_listing', 'is_featured', 'marketing_eligible',
+    'auction_status', 'auction_start_date', 'auction_end_date'
   ];
 
   const definedProps = LISTINGS_PROPERTIES.map(p => p.name);
@@ -73,8 +73,8 @@ try {
 
   const transformed = transformer.transformListing(testData);
 
-  if (transformed.externalListingId !== 'TEST-001') {
-    throw new Error('externalListingId not transformed correctly');
+  if (transformed.external_listing_id !== 'TEST-001') {
+    throw new Error('external_listing_id not transformed correctly');
   }
   if (transformed.bedrooms !== 3) {
     throw new Error('bedrooms mapping failed');
@@ -82,11 +82,11 @@ try {
   if (transformed.bathrooms !== 2) {
     throw new Error('bathrooms mapping failed');
   }
-  if (transformed.stateCode !== 'CA') {
-    throw new Error('stateCode derivation failed');
+  if (transformed.state_code !== 'CA') {
+    throw new Error('state_code derivation failed');
   }
-  if (transformed.marketingEligible !== true) {
-    throw new Error('marketingEligible default failed');
+  if (transformed.marketing_eligible !== true) {
+    throw new Error('marketing_eligible default failed');
   }
 
   console.log('   ✓ Transformer working correctly\n');
