@@ -266,12 +266,12 @@ class DataTransformer {
       transformed.listing_end_date = toHubSpotDateOnly(this.parseDate(endDate));
     }
 
-    // Price fields - use HubSpot's native 'price' field (not custom 'list_price')
+    // Price fields - use HubSpot's native 'hs_price' field (not custom 'list_price')
     const priceValue = this.getFirstAvailableField(feedListing, 'listPrice', 'list_price', 'price');
     if (priceValue !== null) {
       const parsedPrice = this.parseNumber(priceValue);
       if (parsedPrice !== null) {
-        transformed.price = parsedPrice;
+        transformed.hs_price = parsedPrice;
       }
     }
 

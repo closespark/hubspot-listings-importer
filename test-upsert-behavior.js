@@ -2,7 +2,7 @@
 
 /**
  * Test script for HubSpot Listings upsert behavior changes:
- * 1. Uses price instead of list_price
+ * 1. Uses hs_price instead of list_price
  * 2. Auction status normalization
  * 3. Auction date normalization to midnight UTC
  * 4. Upsert field filtering
@@ -43,16 +43,16 @@ function isAtMidnightUTC(epochMs) {
 }
 
 // =============================================================================
-// Test 1: Uses HubSpot's native price field instead of list_price
+// Test 1: Uses HubSpot's native hs_price field instead of list_price
 // =============================================================================
-console.log('Test 1: Uses price instead of list_price');
+console.log('Test 1: Uses hs_price instead of list_price');
 
 const listing1 = {
   external_listing_id: 'TEST-001',
   list_price: 500000,
 };
 const transformed1 = transformer.transformListing(listing1);
-test('Output uses price field', transformed1.price, 500000);
+test('Output uses hs_price field', transformed1.hs_price, 500000);
 test('Output does not include list_price', transformed1.list_price, undefined);
 
 // Test with price input field
@@ -61,7 +61,7 @@ const listing1b = {
   price: 600000,
 };
 const transformed1b = transformer.transformListing(listing1b);
-test('Price input maps to price output', transformed1b.price, 600000);
+test('Price input maps to hs_price output', transformed1b.hs_price, 600000);
 test('Price input - no list_price', transformed1b.list_price, undefined);
 
 // =============================================================================
@@ -183,7 +183,7 @@ const client = new HubSpotClient();
 const fullProperties = {
   external_listing_id: 'TEST-100',
   hs_name: 'Test Listing',
-  price: 500000,
+  hs_price: 500000,
   auction_status: 'active',
   auction_start_date: 1706745600000,
   auction_end_date: 1707955200000,
@@ -192,7 +192,7 @@ const fullProperties = {
 };
 
 const updateProps = client.prepareUpdateProperties(fullProperties);
-test('Update includes price', updateProps.price, 500000);
+test('Update includes hs_price', updateProps.hs_price, 500000);
 test('Update includes auction_status', updateProps.auction_status, 'active');
 test('Update includes auction_start_date', updateProps.auction_start_date, 1706745600000);
 test('Update includes auction_end_date', updateProps.auction_end_date, 1707955200000);
@@ -202,13 +202,13 @@ test('Update does not include hs_bedrooms', updateProps.hs_bedrooms, undefined);
 test('Update does not include hs_name', updateProps.hs_name, undefined);
 test('Update does not include external_listing_id', updateProps.external_listing_id, undefined);
 
-// Test that list_price is NOT cleared if price is not set
+// Test that list_price is NOT cleared if hs_price is not set
 const updatePropsNoPrice = client.prepareUpdateProperties({
   external_listing_id: 'TEST-101',
   auction_status: 'ended',
 });
-test('No list_price when price not set', updatePropsNoPrice.list_price, undefined);
-test('auction_status included without price', updatePropsNoPrice.auction_status, 'ended');
+test('No list_price when hs_price not set', updatePropsNoPrice.list_price, undefined);
+test('auction_status included without hs_price', updatePropsNoPrice.auction_status, 'ended');
 
 // =============================================================================
 // Test 5: HubSpotClient create properties filtering
@@ -218,7 +218,7 @@ console.log('\nTest 5: HubSpotClient create properties filtering');
 const createInputProps = {
   external_listing_id: 'TEST-200',
   hs_name: 'New Listing',
-  price: 750000,
+  hs_price: 750000,
   list_price: 750000, // Should be removed
   hs_city: 'Oakland',
   hs_bedrooms: 4,
@@ -228,7 +228,7 @@ const createInputProps = {
 const createProps = client.prepareCreateProperties(createInputProps);
 test('Create includes external_listing_id', createProps.external_listing_id, 'TEST-200');
 test('Create includes hs_name', createProps.hs_name, 'New Listing');
-test('Create includes price', createProps.price, 750000);
+test('Create includes hs_price', createProps.hs_price, 750000);
 test('Create does not include list_price', createProps.list_price, undefined);
 test('Create includes hs_city', createProps.hs_city, 'Oakland');
 test('Create includes hs_bedrooms', createProps.hs_bedrooms, 4);
@@ -250,7 +250,7 @@ const listingBadAuction = {
 const transformedBadAuction = transformer.transformListing(listingBadAuction);
 
 test('Listing still has external_listing_id', transformedBadAuction.external_listing_id, 'FAIL-SOFT-001');
-test('Listing still has price', transformedBadAuction.price, 400000);
+test('Listing still has hs_price', transformedBadAuction.hs_price, 400000);
 test('Listing still has hs_city', transformedBadAuction.hs_city, 'Test City');
 test('Invalid auction_status omitted (not blocking)', transformedBadAuction.auction_status, undefined);
 test('Invalid auction_start_date omitted (not blocking)', transformedBadAuction.auction_start_date, undefined);
