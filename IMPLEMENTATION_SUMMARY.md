@@ -20,6 +20,8 @@ Successfully implemented a complete Node.js tool that imports JSON real estate f
 The importer uses HubSpot-owned properties (hs_ prefix) and creates custom properties:
 
 **HubSpot-Owned Properties (already exist with hs_ prefix):**
+- ✅ hs_name (string, auto-generated from address, unique identifier for upserts)
+- ✅ price (number, native HubSpot price field - authoritative, not prefixed with hs_)
 - ✅ hs_square_footage (number)
 - ✅ hs_bathrooms (number)
 - ✅ hs_bedrooms (number)
@@ -31,11 +33,11 @@ The importer uses HubSpot-owned properties (hs_ prefix) and creates custom prope
 - ✅ hs_address_2 (string)
 
 **Custom Properties (created by importer):**
-- ✅ external_listing_id (string, required, unique identifier)
+- ✅ external_listing_id (string, external reference ID)
 - ✅ reference_id (string)
 - ✅ listing_start_date (date)
 - ✅ listing_end_date (date)
-- ✅ list_price (number)
+- ✅ list_price (number, legacy - read-only, cleared when price is updated)
 - ✅ listing_status (enumeration)
 - ✅ lot_size_units (enumeration)
 - ✅ state_code (enumeration)
@@ -45,9 +47,9 @@ The importer uses HubSpot-owned properties (hs_ prefix) and creates custom prope
 - ✅ is_new_listing (boolean)
 - ✅ is_featured (boolean)
 - ✅ marketing_eligible (boolean)
-- ✅ auction_status (enumeration)
-- ✅ auction_start_date (date)
-- ✅ auction_end_date (date)
+- ✅ auction_status (enumeration - internal values: not_on_auction, upcoming, active, ended, sold)
+- ✅ auction_start_date (date - normalized to midnight UTC)
+- ✅ auction_end_date (date - normalized to midnight UTC)
 
 **HubSpot Native Property (hs_listing_type):**
 - ✅ hs_listing_type is automatically inferred based on property characteristics
@@ -60,7 +62,7 @@ The importer uses HubSpot-owned properties (hs_ prefix) and creates custom prope
 - ✅ Data validation and sanitization
 
 ### 5. HubSpot CRM Objects API Integration
-- ✅ Search for existing records by assetId
+- ✅ Search for existing records by hs_name
 - ✅ Upsert logic (creates new or updates existing)
 - ✅ Proper error handling for each operation
 - ✅ Uses official @hubspot/api-client library
