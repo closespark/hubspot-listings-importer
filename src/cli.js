@@ -66,7 +66,7 @@ async function main() {
     if (results.errors && results.errors.length > 0) {
       console.log('ERRORS:');
       results.errors.forEach((err, idx) => {
-        console.log(`  ${idx + 1}. External Listing ID: ${err.externalListingId} - ${err.error}`);
+        console.log(`  ${idx + 1}. External Listing ID: ${err.external_listing_id} - ${err.error}`);
       });
       console.log('\n');
     }

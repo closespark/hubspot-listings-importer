@@ -126,52 +126,52 @@ class DataTransformer {
   transformListing(feedListing) {
     const transformed = {};
 
-    // Required fields - externalListingId is the primary key
+    // Required fields - external_listing_id is the primary key
     const externalListingId = this.getFirstAvailableField(feedListing, 'externalListingId', 'external_listing_id', 'assetId', 'asset_id', 'id');
     if (externalListingId) {
-      transformed.externalListingId = String(externalListingId);
+      transformed.external_listing_id = String(externalListingId);
     }
 
     // Reference ID
     const referenceId = this.getFirstAvailableField(feedListing, 'referenceId', 'reference_id', 'assetReferenceId', 'asset_reference_id');
     if (referenceId) {
-      transformed.referenceId = String(referenceId);
+      transformed.reference_id = String(referenceId);
     }
 
     // Listing Start Date
     const startDate = this.getFirstAvailableField(feedListing, 'listingStartDate', 'listing_start_date', 'startDate', 'start_date');
     if (startDate) {
-      transformed.listingStartDate = this.parseDate(startDate);
+      transformed.listing_start_date = this.parseDate(startDate);
     }
 
     // Listing End Date
     const endDate = this.getFirstAvailableField(feedListing, 'listingEndDate', 'listing_end_date', 'endDate', 'end_date');
     if (endDate) {
-      transformed.listingEndDate = this.parseDate(endDate);
+      transformed.listing_end_date = this.parseDate(endDate);
     }
 
     // Price fields
     const price = this.getFirstAvailableField(feedListing, 'listPrice', 'list_price', 'price');
     if (price !== null) {
-      transformed.listPrice = this.parseNumber(price);
+      transformed.list_price = this.parseNumber(price);
     }
 
     // Status fields
     const status = this.getFirstAvailableField(feedListing, 'listingStatus', 'listing_status', 'status');
     if (status) {
-      transformed.listingStatus = String(status);
+      transformed.listing_status = String(status);
     }
 
     // Property type
     const propType = this.getFirstAvailableField(feedListing, 'propertyType', 'property_type', 'type');
     if (propType) {
-      transformed.propertyType = String(propType);
+      transformed.property_type = String(propType);
     }
 
     // Square footage
     const sqft = this.getFirstAvailableField(feedListing, 'squareFootage', 'square_footage', 'sqft');
     if (sqft !== null) {
-      transformed.squareFootage = this.parseNumber(sqft);
+      transformed.square_footage = this.parseNumber(sqft);
     }
 
     // Bathrooms
@@ -189,13 +189,13 @@ class DataTransformer {
     // Lot size
     const lotSize = this.getFirstAvailableField(feedListing, 'lotSize', 'lot_size');
     if (lotSize !== null) {
-      transformed.lotSize = this.parseNumber(lotSize);
+      transformed.lot_size = this.parseNumber(lotSize);
     }
 
     // Lot size units
     const lotSizeUnits = this.getFirstAvailableField(feedListing, 'lotSizeUnits', 'lot_size_units');
     if (lotSizeUnits) {
-      transformed.lotSizeUnits = String(lotSizeUnits);
+      transformed.lot_size_units = String(lotSizeUnits);
     }
 
     // Address fields
@@ -207,10 +207,10 @@ class DataTransformer {
       transformed.state = String(feedListing.state);
     }
 
-    // Derive stateCode from state or use provided stateCode
+    // Derive state_code from state or use provided stateCode
     const stateCode = this.deriveStateCode(feedListing);
     if (stateCode) {
-      transformed.stateCode = stateCode;
+      transformed.state_code = stateCode;
     }
 
     const zip = this.getFirstAvailableField(feedListing, 'zip', 'zipCode', 'zip_code', 'postal_code');
@@ -224,60 +224,60 @@ class DataTransformer {
 
     const address1 = this.getFirstAvailableField(feedListing, 'addressLine1', 'address_line_1', 'address1', 'address', 'street');
     if (address1) {
-      transformed.addressLine1 = String(address1);
+      transformed.address_line_1 = String(address1);
     }
 
     const address2 = this.getFirstAvailableField(feedListing, 'addressLine2', 'address_line_2', 'address2', 'unit');
     if (address2) {
-      transformed.addressLine2 = String(address2);
+      transformed.address_line_2 = String(address2);
     }
 
     // URL fields
     const listingUrl = this.getFirstAvailableField(feedListing, 'listingUrl', 'listing_url', 'propertyUrl', 'property_url', 'url');
     if (listingUrl) {
-      transformed.listingUrl = String(listingUrl);
+      transformed.listing_url = String(listingUrl);
     }
 
     const primaryImageUrl = this.getFirstAvailableField(feedListing, 'primaryImageUrl', 'primary_image_url', 'imageUrl', 'image_url', 'mediaUrl', 'media_url');
     if (primaryImageUrl) {
-      transformed.primaryImageUrl = String(primaryImageUrl);
+      transformed.primary_image_url = String(primaryImageUrl);
     }
 
     // Marketing flags
     const isNewListing = this.getFirstAvailableField(feedListing, 'isNewListing', 'is_new_listing', 'isNew', 'is_new');
     if (isNewListing !== null) {
-      transformed.isNewListing = this.parseBoolean(isNewListing);
+      transformed.is_new_listing = this.parseBoolean(isNewListing);
     }
 
     const isFeatured = this.getFirstAvailableField(feedListing, 'isFeatured', 'is_featured', 'featured');
     if (isFeatured !== null) {
-      transformed.isFeatured = this.parseBoolean(isFeatured);
+      transformed.is_featured = this.parseBoolean(isFeatured);
     }
 
-    // marketingEligible defaults to true if not provided.
+    // marketing_eligible defaults to true if not provided.
     // This ensures new listings are automatically eligible for marketing campaigns (emails, workflows).
     // Override by explicitly setting marketingEligible: false in the feed data.
     const marketingEligible = this.getFirstAvailableField(feedListing, 'marketingEligible', 'marketing_eligible');
     if (marketingEligible !== null) {
-      transformed.marketingEligible = this.parseBoolean(marketingEligible);
+      transformed.marketing_eligible = this.parseBoolean(marketingEligible);
     } else {
-      transformed.marketingEligible = true;
+      transformed.marketing_eligible = true;
     }
 
     // Auction fields
     const auctionStatus = this.getFirstAvailableField(feedListing, 'auctionStatus', 'auction_status');
     if (auctionStatus) {
-      transformed.auctionStatus = String(auctionStatus);
+      transformed.auction_status = String(auctionStatus);
     }
 
     const auctionStart = this.getFirstAvailableField(feedListing, 'auctionStartDate', 'auction_start_date');
     if (auctionStart) {
-      transformed.auctionStartDate = this.parseDate(auctionStart);
+      transformed.auction_start_date = this.parseDate(auctionStart);
     }
 
     const auctionEnd = this.getFirstAvailableField(feedListing, 'auctionEndDate', 'auction_end_date');
     if (auctionEnd) {
-      transformed.auctionEndDate = this.parseDate(auctionEnd);
+      transformed.auction_end_date = this.parseDate(auctionEnd);
     }
 
     return transformed;
@@ -430,7 +430,7 @@ class DataTransformer {
           return null;
         }
       })
-      .filter(listing => listing !== null && listing.externalListingId); // Filter out invalid listings
+      .filter(listing => listing !== null && listing.external_listing_id); // Filter out invalid listings
 
     // Log aggregated warnings summary
     this.logWarningSummary();

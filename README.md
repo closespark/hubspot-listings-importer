@@ -170,7 +170,7 @@ For a one-time import of listings from a local JSON file:
    ```
 
 **Notes:**
-- The importer uses `externalListingId` as the unique identifier and performs upserts (creates new or updates existing records)
+- The importer uses `external_listing_id` as the unique identifier and performs upserts (creates new or updates existing records)
 - Re-running the import will update existing listings, not create duplicates
 - Data files in `data/` are gitignored to prevent accidental commits
 - This is intended for one-time use; the JSON file is not synced or scheduled
