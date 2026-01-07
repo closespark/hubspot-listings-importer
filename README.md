@@ -153,6 +153,29 @@ The application will run automatically when deployed to Render. Configure it as:
 - **Build Command**: `npm install`
 - **Start Command**: `npm start` or `node src/cli.js --url $FEED_URL`
 
+## One-Time Local Listings Import
+
+For a one-time import of listings from a local JSON file:
+
+1. Place your listings JSON file at `data/properties_combined.json`
+
+2. Create a `.env` file in the project root:
+   ```bash
+   HUBSPOT_ACCESS_TOKEN=your_hubspot_private_app_token
+   ```
+
+3. Run the importer:
+   ```bash
+   node src/index.js ./data/properties_combined.json
+   ```
+
+**Notes:**
+- The importer uses `externalListingId` as the unique identifier and performs upserts (creates new or updates existing records)
+- Re-running the import will update existing listings, not create duplicates
+- Data files in `data/` are gitignored to prevent accidental commits
+- This is intended for one-time use; the JSON file is not synced or scheduled
+- For more CLI options (--dry-run, --url), use `node src/cli.js` instead
+
 ## Feed Data Format
 
 The importer supports flexible JSON feed formats. The feed can be:
