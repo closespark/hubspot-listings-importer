@@ -2,6 +2,54 @@ const logger = require('./logger');
 const { US_STATE_CODES, VALID_STATE_CODES } = require('./properties');
 
 /**
+ * Infer property type based on property characteristics
+ * @param {Object} params - Property characteristics
+ * @param {number|string} params.squareFootage - Square footage of the property
+ * @param {number|string} params.bedrooms - Number of bedrooms
+ * @param {number|string} params.bathrooms - Number of bathrooms
+ * @param {number|string} params.lotSize - Lot size in square feet
+ * @returns {string} Inferred property type
+ */
+function inferPropertyType({ squareFootage, bedrooms, bathrooms, lotSize }) {
+  const sf = Number(squareFootage) || 0;
+  const beds = Number(bedrooms) || 0;
+  const baths = Number(bathrooms) || 0;
+  const lot = Number(lotSize) || 0;
+
+  // LAND
+  if ((sf === 0 || sf < 400) && beds === 0 && baths === 0 && lot > 5000) {
+    return 'Land';
+  }
+
+  // MANUFACTURED
+  if (sf >= 400 && sf <= 1800 && lot >= 3000 && lot <= 20000 && beds >= 1) {
+    return 'Manufactured';
+  }
+
+  // MULTI-FAMILY
+  if (beds >= 5 || baths >= 3.5 || (sf >= 2500 && beds >= 4)) {
+    return 'Multi-Family';
+  }
+
+  // CONDO
+  if (sf <= 1200 && beds <= 2 && (lot <= 2000 || lot === 0)) {
+    return 'Condo';
+  }
+
+  // TOWNHOME
+  if (sf >= 1200 && sf <= 2200 && lot >= 1000 && lot <= 4000) {
+    return 'Townhome';
+  }
+
+  // SINGLE FAMILY
+  if (sf >= 1000 && lot >= 3000 && beds >= 2) {
+    return 'Single Family';
+  }
+
+  return 'Other';
+}
+
+/**
  * State name to code mapping for deriving stateCode
  */
 const STATE_NAME_TO_CODE = {
@@ -190,6 +238,16 @@ class DataTransformer {
     const lotSize = this.getFirstAvailableField(feedListing, 'lotSize', 'lot_size');
     if (lotSize !== null) {
       transformed.hs_lot_size = this.parseNumber(lotSize);
+    }
+
+    // Infer property type if not provided
+    if (!transformed.property_type) {
+      transformed.property_type = inferPropertyType({
+        squareFootage: transformed.hs_square_footage,
+        bedrooms: transformed.hs_bedrooms,
+        bathrooms: transformed.hs_bathrooms,
+        lotSize: transformed.hs_lot_size,
+      });
     }
 
     // Lot size units
@@ -481,4 +539,7 @@ class DataTransformer {
   }
 }
 
-module.exports = new DataTransformer();
+const transformer = new DataTransformer();
+transformer.inferPropertyType = inferPropertyType;
+
+module.exports = transformer;
