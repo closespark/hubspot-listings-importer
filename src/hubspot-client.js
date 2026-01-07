@@ -259,14 +259,14 @@ class HubSpotClient {
    */
   static UPDATABLE_FIELDS = [
     'auction_status',
-    'price',
+    'hs_price',
     'auction_start_date',
     'auction_end_date',
   ];
 
   /**
    * Prepare properties for update - only include updatable fields.
-   * If price is set, also clear legacy list_price field.
+   * If hs_price is set, also clear legacy list_price field.
    * @param {Object} properties - Full listing properties
    * @returns {Object} Properties filtered to only updatable fields
    */
@@ -280,10 +280,10 @@ class HubSpotClient {
       }
     }
 
-    // Backfill + cleanup: if price is being set, clear legacy list_price field.
+    // Backfill + cleanup: if hs_price is being set, clear legacy list_price field.
     // We use null (not undefined) to explicitly clear the field in HubSpot.
-    // This ensures stale list_price data is removed during migration to price.
-    if (updateProps.price !== undefined) {
+    // This ensures stale list_price data is removed during migration to hs_price.
+    if (updateProps.hs_price !== undefined) {
       updateProps.list_price = null;
     }
 
@@ -291,13 +291,13 @@ class HubSpotClient {
   }
 
   /**
-   * Prepare properties for create - exclude list_price (use price only).
+   * Prepare properties for create - exclude list_price (use hs_price only).
    * @param {Object} properties - Full listing properties
    * @returns {Object} Properties without list_price
    */
   prepareCreateProperties(properties) {
     const createProps = { ...properties };
-    // Do not include list_price on new listings - price is the single source of truth
+    // Do not include list_price on new listings - hs_price is the single source of truth
     delete createProps.list_price;
     return createProps;
   }
