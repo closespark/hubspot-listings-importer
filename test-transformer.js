@@ -39,10 +39,14 @@ transformed.forEach((listing, index) => {
     console.error(`ERROR: Listing ${index + 1} missing external_listing_id`);
     allValid = false;
   }
+  if (!listing.hs_name) {
+    console.error(`ERROR: Listing ${index + 1} missing hs_name`);
+    allValid = false;
+  }
 });
 
 if (allValid) {
-  console.log('✓ All listings have required fields');
+  console.log('✓ All listings have required fields (external_listing_id, hs_name)');
   process.exit(0);
 } else {
   console.error('✗ Some listings are missing required fields');
