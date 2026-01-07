@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 /**
- * Test script for inferPropertyType function
+ * Test script for inferHsListingType function
+ * Tests HubSpot native hs_listing_type enum values
  */
 
 // Mock config and logger to avoid requiring environment variables
@@ -9,15 +10,15 @@ process.env.HUBSPOT_ACCESS_TOKEN = 'test-token';
 process.env.FEED_URL = 'http://test.com/feed.json';
 
 const transformer = require('./src/transformer');
-const inferPropertyType = transformer.inferPropertyType;
+const inferHsListingType = transformer.inferHsListingType;
 
-console.log('Testing inferPropertyType function...\n');
+console.log('Testing inferHsListingType function...\n');
 
 let testsPassed = 0;
 let testsFailed = 0;
 
 function test(name, input, expected) {
-  const result = inferPropertyType(input);
+  const result = inferHsListingType(input);
   if (result === expected) {
     console.log(`✓ ${name}: ${JSON.stringify(input)} => "${result}"`);
     testsPassed++;
@@ -27,119 +28,137 @@ function test(name, input, expected) {
   }
 }
 
-// Test Land detection
+// Test lots_land detection
 test(
-  'Land - vacant lot with large lot size',
+  'lots_land - vacant lot with large lot size',
   { squareFootage: 0, bedrooms: 0, bathrooms: 0, lotSize: 10000 },
-  'Land'
+  'lots_land'
 );
 
 test(
-  'Land - tiny structure on large lot',
-  { squareFootage: 200, bedrooms: 0, bathrooms: 0, lotSize: 50000 },
-  'Land'
+  'lots_land - no structure on large lot',
+  { squareFootage: 0, bedrooms: 0, bathrooms: 0, lotSize: 5000 },
+  'lots_land'
 );
 
-// Test Manufactured detection
+// Test manufactured detection
 test(
-  'Manufactured - typical manufactured home',
+  'manufactured - typical manufactured home',
   { squareFootage: 1400, bedrooms: 3, bathrooms: 2, lotSize: 10000 },
-  'Manufactured'
+  'manufactured'
 );
 
 test(
-  'Manufactured - small manufactured home',
+  'manufactured - small manufactured home',
   { squareFootage: 400, bedrooms: 1, bathrooms: 1, lotSize: 3000 },
-  'Manufactured'
+  'manufactured'
 );
 
-// Test Multi-Family detection
+// Test apartments detection (larger-scale multi-unit)
 test(
-  'Multi-Family - many bedrooms',
+  'apartments - many bedrooms (10+)',
+  { squareFootage: 6000, bedrooms: 10, bathrooms: 6, lotSize: 15000 },
+  'apartments'
+);
+
+test(
+  'apartments - many bathrooms (8+)',
+  { squareFootage: 7500, bedrooms: 8, bathrooms: 8, lotSize: 20000 },
+  'apartments'
+);
+
+test(
+  'apartments - large with 8+ beds',
+  { squareFootage: 8000, bedrooms: 8, bathrooms: 6, lotSize: 25000 },
+  'apartments'
+);
+
+// Test multi_family detection
+test(
+  'multi_family - many bedrooms',
   { squareFootage: 3000, bedrooms: 5, bathrooms: 3, lotSize: 8000 },
-  'Multi-Family'
+  'multi_family'
 );
 
 test(
-  'Multi-Family - many bathrooms',
+  'multi_family - many bathrooms',
   { squareFootage: 2000, bedrooms: 3, bathrooms: 4, lotSize: 6000 },
-  'Multi-Family'
+  'multi_family'
 );
 
 test(
-  'Multi-Family - large with 4 bedrooms',
+  'multi_family - large with 4 bedrooms',
   { squareFootage: 2500, bedrooms: 4, bathrooms: 2, lotSize: 6000 },
-  'Multi-Family'
+  'multi_family'
 );
 
-// Test Condo detection
+// Test condos_co_ops detection
 test(
-  'Condo - small unit with no lot',
+  'condos_co_ops - small unit with no lot',
   { squareFootage: 800, bedrooms: 1, bathrooms: 1, lotSize: 0 },
-  'Condo'
+  'condos_co_ops'
 );
 
 test(
-  'Condo - small unit with tiny lot',
-  { squareFootage: 1000, bedrooms: 2, bathrooms: 1, lotSize: 1500 },
-  'Condo'
+  'condos_co_ops - small unit with tiny lot',
+  { squareFootage: 1000, bedrooms: 2, bathrooms: 1, lotSize: 500 },
+  'condos_co_ops'
 );
 
-// Test Townhome detection
+// Test townhouse detection
 test(
-  'Townhome - typical townhome',
+  'townhouse - typical townhouse',
   { squareFootage: 1500, bedrooms: 3, bathrooms: 2, lotSize: 2000 },
-  'Townhome'
+  'townhouse'
 );
 
 test(
-  'Townhome - larger townhome',
-  { squareFootage: 2200, bedrooms: 4, bathrooms: 2.5, lotSize: 4000 },
-  'Townhome'
+  'townhouse - larger townhouse',
+  { squareFootage: 2200, bedrooms: 3, bathrooms: 2.5, lotSize: 4000 },
+  'townhouse'
 );
 
-// Test Single Family detection
+// Test house detection
 test(
-  'Single Family - standard home',
+  'house - standard home',
   { squareFootage: 2000, bedrooms: 3, bathrooms: 2, lotSize: 8000 },
-  'Single Family'
+  'house'
 );
 
 test(
-  'Single Family - larger home (not multi-family due to fewer beds)',
+  'house - larger home (not multi-family due to fewer beds)',
   { squareFootage: 3500, bedrooms: 3, bathrooms: 2.5, lotSize: 12000 },
-  'Single Family'
+  'house'
 );
 
-// Test Other fallback
+// Test house fallback
 test(
-  'Other - unusual combination',
-  { squareFootage: 500, bedrooms: 1, bathrooms: 1, lotSize: 2500 },
-  'Other'
+  'house - default fallback for large lot outside townhouse range',
+  { squareFootage: 1500, bedrooms: 2, bathrooms: 1, lotSize: 25000 },
+  'house'
 );
 
 // Test edge cases with string inputs
 test(
-  'Handles string inputs - Land',
+  'Handles string inputs - lots_land',
   { squareFootage: '0', bedrooms: '0', bathrooms: '0', lotSize: '15000' },
-  'Land'
+  'lots_land'
 );
 
-// Per the function logic, when all values are 0/null/undefined,
-// the Condo check passes (sf<=1200 && beds<=2 && lot===0)
+// When all values are 0/null/undefined, fallback is house
 test(
-  'Handles null/undefined inputs - Condo (no lot, small/no structure)',
+  'Handles null/undefined inputs - house fallback',
   { squareFootage: null, bedrooms: undefined, bathrooms: null, lotSize: null },
-  'Condo'
+  'house'
 );
 
 test(
-  'Handles missing inputs - Condo (no lot, small/no structure)',
+  'Handles missing inputs - house fallback',
   {},
-  'Condo'
+  'house'
 );
 
-// Test transformer integration - listing without property_type should get inferred type
+// Test transformer integration - listing should get inferred hs_listing_type
 console.log('\nTesting transformer integration...\n');
 
 const testListing = {
@@ -151,30 +170,48 @@ const testListing = {
 };
 
 const transformed = transformer.transformListing(testListing);
-if (transformed.property_type === 'Land') {
-  console.log('✓ Transformer correctly infers property_type as "Land" when not provided');
+if (transformed.hs_listing_type === 'lots_land') {
+  console.log('✓ Transformer correctly infers hs_listing_type as "lots_land"');
   testsPassed++;
 } else {
-  console.error(`✗ Transformer inference failed: expected "Land", got "${transformed.property_type}"`);
+  console.error(`✗ Transformer inference failed: expected "lots_land", got "${transformed.hs_listing_type}"`);
   testsFailed++;
 }
 
-// Test that provided property_type is not overwritten
+// Verify property_type is not set
+if (transformed.property_type === undefined) {
+  console.log('✓ Transformer does not set property_type (migrated to hs_listing_type)');
+  testsPassed++;
+} else {
+  console.error(`✗ Transformer should not set property_type, but got "${transformed.property_type}"`);
+  testsFailed++;
+}
+
+// Test that hs_listing_type is always inferred (not preserved from input)
 const testListingWithType = {
   external_listing_id: 'TEST-002',
-  property_type: 'custom_type',
-  square_footage: 0,
-  bedrooms: 0,
-  bathrooms: 0,
-  lot_size: 20000,
+  property_type: 'custom_type', // This should be ignored
+  square_footage: 2000,
+  bedrooms: 3,
+  bathrooms: 2,
+  lot_size: 8000,
 };
 
 const transformedWithType = transformer.transformListing(testListingWithType);
-if (transformedWithType.property_type === 'custom_type') {
-  console.log('✓ Transformer correctly preserves provided property_type');
+if (transformedWithType.hs_listing_type === 'house') {
+  console.log('✓ Transformer infers hs_listing_type based on property characteristics');
   testsPassed++;
 } else {
-  console.error(`✗ Transformer should preserve provided type: expected "custom_type", got "${transformedWithType.property_type}"`);
+  console.error(`✗ Transformer should infer hs_listing_type as "house", got "${transformedWithType.hs_listing_type}"`);
+  testsFailed++;
+}
+
+// Verify property_type is not copied from input
+if (transformedWithType.property_type === undefined) {
+  console.log('✓ Transformer does not copy property_type from input');
+  testsPassed++;
+} else {
+  console.error(`✗ Transformer should not copy property_type from input, got "${transformedWithType.property_type}"`);
   testsFailed++;
 }
 

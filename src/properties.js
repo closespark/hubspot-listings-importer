@@ -133,23 +133,9 @@ const LISTINGS_PROPERTIES = [
       { label: 'Expired', value: 'expired' },
     ],
   },
-  {
-    name: 'property_type',
-    label: 'Property Type',
-    type: 'enumeration',
-    fieldType: 'select',
-    groupName: 'listing_information',
-    description: 'Type of property',
-    options: [
-      { label: 'Single Family', value: 'single_family' },
-      { label: 'Condo', value: 'condo' },
-      { label: 'Townhome', value: 'townhome' },
-      { label: 'Multi-Family', value: 'multi_family' },
-      { label: 'Land', value: 'land' },
-      { label: 'Manufactured', value: 'manufactured' },
-      { label: 'Other', value: 'other' },
-    ],
-  },
+  // NOTE: hs_listing_type is HubSpot-owned — do NOT create or modify
+  // Valid internal values: house, townhouse, multi_family, condos_co_ops, lots_land, apartments, manufactured
+  //
   // NOTE: The following HubSpot-owned properties are NOT defined here because they already
   // exist with hs_ prefix (e.g., hs_square_footage, hs_bedrooms, hs_bathrooms, hs_lot_size,
   // hs_city, hs_state_province, hs_zip, hs_address_1, hs_address_2). We only define custom properties.
