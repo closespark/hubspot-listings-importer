@@ -35,10 +35,13 @@ try {
   const { LISTINGS_PROPERTIES } = require('./src/properties');
   
   const expectedProps = [
-    'assetId', 'listPrice', 'listingStatus', 'propertyType',
+    'externalListingId', 'referenceId', 'listingStartDate', 'listingEndDate',
+    'listPrice', 'listingStatus', 'propertyType',
     'squareFootage', 'bathrooms', 'bedrooms', 'lotSize', 'lotSizeUnits',
-    'city', 'state', 'zip', 'county', 'address1', 'address2',
-    'mediaUrl', 'auctionStatus', 'auctionStartDate', 'auctionEndDate'
+    'city', 'state', 'stateCode', 'zip', 'county', 'addressLine1', 'addressLine2',
+    'listingUrl', 'primaryImageUrl',
+    'isNewListing', 'isFeatured', 'marketingEligible',
+    'auctionStatus', 'auctionStartDate', 'auctionEndDate'
   ];
 
   const definedProps = LISTINGS_PROPERTIES.map(p => p.name);
@@ -60,7 +63,7 @@ console.log('3. Testing data transformer...');
 try {
   const transformer = require('./src/transformer');
   const testData = {
-    assetId: 'TEST-001',
+    externalListingId: 'TEST-001',
     listPrice: 500000,
     city: 'Test City',
     state: 'CA',
@@ -70,14 +73,20 @@ try {
 
   const transformed = transformer.transformListing(testData);
 
-  if (transformed.assetId !== 'TEST-001') {
-    throw new Error('assetId not transformed correctly');
+  if (transformed.externalListingId !== 'TEST-001') {
+    throw new Error('externalListingId not transformed correctly');
   }
   if (transformed.bedrooms !== 3) {
     throw new Error('bedrooms mapping failed');
   }
   if (transformed.bathrooms !== 2) {
     throw new Error('bathrooms mapping failed');
+  }
+  if (transformed.stateCode !== 'CA') {
+    throw new Error('stateCode derivation failed');
+  }
+  if (transformed.marketingEligible !== true) {
+    throw new Error('marketingEligible default failed');
   }
 
   console.log('   ✓ Transformer working correctly\n');

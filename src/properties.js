@@ -1,22 +1,79 @@
 /**
+ * US State codes for the stateCode dropdown
+ */
+const US_STATE_CODES = [
+  { label: 'Alabama', value: 'AL' },
+  { label: 'Alaska', value: 'AK' },
+  { label: 'Arizona', value: 'AZ' },
+  { label: 'Arkansas', value: 'AR' },
+  { label: 'California', value: 'CA' },
+  { label: 'Colorado', value: 'CO' },
+  { label: 'Connecticut', value: 'CT' },
+  { label: 'Delaware', value: 'DE' },
+  { label: 'District of Columbia', value: 'DC' },
+  { label: 'Florida', value: 'FL' },
+  { label: 'Georgia', value: 'GA' },
+  { label: 'Hawaii', value: 'HI' },
+  { label: 'Idaho', value: 'ID' },
+  { label: 'Illinois', value: 'IL' },
+  { label: 'Indiana', value: 'IN' },
+  { label: 'Iowa', value: 'IA' },
+  { label: 'Kansas', value: 'KS' },
+  { label: 'Kentucky', value: 'KY' },
+  { label: 'Louisiana', value: 'LA' },
+  { label: 'Maine', value: 'ME' },
+  { label: 'Maryland', value: 'MD' },
+  { label: 'Massachusetts', value: 'MA' },
+  { label: 'Michigan', value: 'MI' },
+  { label: 'Minnesota', value: 'MN' },
+  { label: 'Mississippi', value: 'MS' },
+  { label: 'Missouri', value: 'MO' },
+  { label: 'Montana', value: 'MT' },
+  { label: 'Nebraska', value: 'NE' },
+  { label: 'Nevada', value: 'NV' },
+  { label: 'New Hampshire', value: 'NH' },
+  { label: 'New Jersey', value: 'NJ' },
+  { label: 'New Mexico', value: 'NM' },
+  { label: 'New York', value: 'NY' },
+  { label: 'North Carolina', value: 'NC' },
+  { label: 'North Dakota', value: 'ND' },
+  { label: 'Ohio', value: 'OH' },
+  { label: 'Oklahoma', value: 'OK' },
+  { label: 'Oregon', value: 'OR' },
+  { label: 'Pennsylvania', value: 'PA' },
+  { label: 'Rhode Island', value: 'RI' },
+  { label: 'South Carolina', value: 'SC' },
+  { label: 'South Dakota', value: 'SD' },
+  { label: 'Tennessee', value: 'TN' },
+  { label: 'Texas', value: 'TX' },
+  { label: 'Utah', value: 'UT' },
+  { label: 'Vermont', value: 'VT' },
+  { label: 'Virginia', value: 'VA' },
+  { label: 'Washington', value: 'WA' },
+  { label: 'West Virginia', value: 'WV' },
+  { label: 'Wisconsin', value: 'WI' },
+  { label: 'Wyoming', value: 'WY' },
+];
+
+/**
  * Define all required Listings properties for HubSpot
  */
 const LISTINGS_PROPERTIES = [
   {
-    name: 'assetId',
-    label: 'Asset ID',
+    name: 'externalListingId',
+    label: 'External Listing ID',
     type: 'string',
     fieldType: 'text',
     groupName: 'listing_information',
-    description: 'Unique identifier for the listing asset',
+    description: 'Unique external identifier for the listing',
   },
   {
-    name: 'assetReferenceId',
-    label: 'Asset Reference ID',
+    name: 'referenceId',
+    label: 'Reference ID',
     type: 'string',
     fieldType: 'text',
     groupName: 'listing_information',
-    description: 'Secondary reference identifier for the asset',
+    description: 'Secondary reference identifier for the listing',
   },
   {
     name: 'listingStartDate',
@@ -25,6 +82,14 @@ const LISTINGS_PROPERTIES = [
     fieldType: 'date',
     groupName: 'listing_information',
     description: 'Date when the listing became active',
+  },
+  {
+    name: 'listingEndDate',
+    label: 'Listing End Date',
+    type: 'date',
+    fieldType: 'date',
+    groupName: 'listing_information',
+    description: 'Date when the listing ended or expires',
   },
   {
     name: 'listPrice',
@@ -42,12 +107,11 @@ const LISTINGS_PROPERTIES = [
     groupName: 'listing_information',
     description: 'Current status of the listing',
     options: [
-      { label: 'Active', value: 'active' },
-      { label: 'Pending', value: 'pending' },
+      { label: 'For Sale', value: 'for_sale' },
+      { label: 'Under Contract', value: 'under_contract' },
       { label: 'Sold', value: 'sold' },
       { label: 'Withdrawn', value: 'withdrawn' },
       { label: 'Expired', value: 'expired' },
-      { label: 'Contingent', value: 'contingent' },
     ],
   },
   {
@@ -60,10 +124,10 @@ const LISTINGS_PROPERTIES = [
     options: [
       { label: 'Single Family', value: 'single_family' },
       { label: 'Condo', value: 'condo' },
-      { label: 'Townhouse', value: 'townhouse' },
+      { label: 'Townhome', value: 'townhome' },
       { label: 'Multi-Family', value: 'multi_family' },
       { label: 'Land', value: 'land' },
-      { label: 'Commercial', value: 'commercial' },
+      { label: 'Manufactured', value: 'manufactured' },
       { label: 'Other', value: 'other' },
     ],
   },
@@ -129,6 +193,15 @@ const LISTINGS_PROPERTIES = [
     description: 'State where property is located',
   },
   {
+    name: 'stateCode',
+    label: 'State Code',
+    type: 'enumeration',
+    fieldType: 'select',
+    groupName: 'listing_information',
+    description: 'US state code (e.g., CA, NY, TX)',
+    options: US_STATE_CODES,
+  },
+  {
     name: 'zip',
     label: 'ZIP Code',
     type: 'string',
@@ -161,12 +234,44 @@ const LISTINGS_PROPERTIES = [
     description: 'Secondary address line (apt, suite, etc.)',
   },
   {
-    name: 'mediaUrl',
-    label: 'Media URL',
+    name: 'listingUrl',
+    label: 'Listing URL',
     type: 'string',
     fieldType: 'text',
     groupName: 'listing_information',
-    description: 'URL to property media/images',
+    description: 'URL to the property listing page',
+  },
+  {
+    name: 'primaryImageUrl',
+    label: 'Primary Image URL',
+    type: 'string',
+    fieldType: 'text',
+    groupName: 'listing_information',
+    description: 'URL to the main property image',
+  },
+  {
+    name: 'isNewListing',
+    label: 'Is New Listing',
+    type: 'bool',
+    fieldType: 'booleancheckbox',
+    groupName: 'listing_information',
+    description: 'Whether this is a new listing',
+  },
+  {
+    name: 'isFeatured',
+    label: 'Is Featured',
+    type: 'bool',
+    fieldType: 'booleancheckbox',
+    groupName: 'listing_information',
+    description: 'Whether this listing is featured',
+  },
+  {
+    name: 'marketingEligible',
+    label: 'Marketing Eligible',
+    type: 'bool',
+    fieldType: 'booleancheckbox',
+    groupName: 'listing_information',
+    description: 'Whether this listing is eligible for marketing campaigns',
   },
   {
     name: 'auctionStatus',
@@ -201,6 +306,13 @@ const LISTINGS_PROPERTIES = [
   },
 ];
 
+/**
+ * Valid state codes set for quick lookup
+ */
+const VALID_STATE_CODES = new Set(US_STATE_CODES.map(s => s.value));
+
 module.exports = {
   LISTINGS_PROPERTIES,
+  US_STATE_CODES,
+  VALID_STATE_CODES,
 };

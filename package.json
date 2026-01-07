@@ -1,6 +1,6 @@
 {
   "name": "hubspot-listings-importer",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Import and upsert real estate JSON feeds into HubSpot Listings using Render and HubSpot CRM API",
   "main": "src/cli.js",
   "bin": {
