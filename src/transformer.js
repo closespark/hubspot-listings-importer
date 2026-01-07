@@ -613,7 +613,7 @@ class DataTransformer {
           return null;
         }
       })
-      .filter(listing => listing !== null && listing.external_listing_id); // Filter out invalid listings
+      .filter(listing => listing !== null && listing.hs_name); // Filter out invalid listings (hs_name is required)
 
     // Log aggregated warnings summary
     this.logWarningSummary();

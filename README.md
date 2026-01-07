@@ -8,7 +8,7 @@ A Node.js tool that imports JSON real estate feeds into HubSpot Listings objects
 - ✅ Creates HubSpot Listings custom object if it doesn't exist
 - ✅ Automatically creates all required custom properties
 - ✅ Transforms JSON feed data to HubSpot format
-- ✅ Upserts records (creates new or updates existing based on assetId)
+- ✅ Upserts records (creates new or updates existing based on hs_name)
 - ✅ Retry logic with exponential backoff for API calls
 - ✅ Comprehensive logging with configurable log levels
 - ✅ Batch processing for large feeds
@@ -19,6 +19,8 @@ The importer uses both HubSpot-owned properties (prefixed with `hs_`) and custom
 
 ### HubSpot-Owned Properties (hs_ prefix)
 These properties are auto-created by HubSpot and are referenced using their correct internal names:
+- `hs_name` - Listing name (auto-generated from address, unique identifier for upserts)
+- `hs_price` - Native HubSpot price field (authoritative)
 - `hs_square_footage` - Square footage
 - `hs_bathrooms` - Number of bathrooms
 - `hs_bedrooms` - Number of bedrooms
@@ -31,11 +33,11 @@ These properties are auto-created by HubSpot and are referenced using their corr
 
 ### Custom Properties
 These properties are created and managed by the importer:
-- `external_listing_id` - Unique identifier (required)
+- `external_listing_id` - External reference identifier (for tracking source system ID)
 - `reference_id` - Secondary reference ID
 - `listing_start_date` - When listing became active
 - `listing_end_date` - When listing ended or expires
-- `list_price` - Listing price
+- `list_price` - **Legacy price field (read-only, cleared when hs_price is updated)**
 - `listing_status` - Current status (dropdown: For Sale, Under Contract, Sold, Withdrawn, Expired)
 - `lot_size_units` - Units for lot size (dropdown: Square Feet, Acres, Square Meters)
 - `state_code` - US state code dropdown (e.g., CA, NY, TX)
@@ -45,7 +47,7 @@ These properties are created and managed by the importer:
 - `is_new_listing` - Whether this is a new listing
 - `is_featured` - Whether this listing is featured
 - `marketing_eligible` - Whether this listing is eligible for marketing campaigns
-- `auction_status` - Auction status (dropdown: Not on Auction, Upcoming, Active, Ended, Sold)
+- `auction_status` - Auction status (internal values: not_on_auction, upcoming, active, ended, sold)
 - `auction_start_date` - Auction start date
 - `auction_end_date` - Auction end date
 
@@ -184,7 +186,9 @@ For a one-time import of listings from a local JSON file:
    ```
 
 **Notes:**
-- The importer uses `external_listing_id` as the unique identifier and performs upserts (creates new or updates existing records)
+- The importer uses `hs_name` as the unique identifier and performs upserts (creates new or updates existing records)
+- `hs_name` is auto-generated from address components (street, city, state, zip)
+- Listings are uniquely identified and upserted by `hs_name`
 - Re-running the import will update existing listings, not create duplicates
 - Data files in `data/` are gitignored to prevent accidental commits
 - This is intended for one-time use; the JSON file is not synced or scheduled
@@ -223,11 +227,12 @@ The transformer supports multiple field name variations:
 
 | HubSpot Property | Accepted Feed Fields |
 |-----------------|---------------------|
+| hs_name | Auto-generated from address (hs_address_1, hs_city, hs_state_province, hs_zip) |
 | external_listing_id | `externalListingId`, `external_listing_id`, `assetId`, `asset_id`, `id` |
 | reference_id | `referenceId`, `reference_id`, `assetReferenceId`, `asset_reference_id` |
 | listing_start_date | `listingStartDate`, `listing_start_date`, `startDate`, `start_date` |
 | listing_end_date | `listingEndDate`, `listing_end_date`, `endDate`, `end_date` |
-| list_price | `listPrice`, `list_price`, `price` |
+| hs_price | `listPrice`, `list_price`, `price` |
 | listing_status | `listingStatus`, `listing_status`, `status` |
 | hs_square_footage | `squareFootage`, `square_footage`, `sqft` |
 | hs_bathrooms | `bathrooms`, `baths` |
@@ -279,6 +284,27 @@ Dates are parsed with the following rules:
 - **String dates**: Parsed using JavaScript's `Date` constructor
 - **Valid range**: Dates must be between years 1900 and 2100
 - **Invalid dates**: Logged as warnings and the field remains unset
+- **Auction dates**: `auction_start_date` and `auction_end_date` are normalized to midnight UTC. Any timestamp with a time component is stripped before sending to HubSpot to avoid `INVALID_DATE` errors.
+
+### Auction Status Values
+
+The `auction_status` field uses HubSpot's internal enum values. Human-readable values from feed data are automatically normalized:
+
+**Valid internal values:**
+- `not_on_auction` - Not currently on auction
+- `upcoming` - Auction scheduled but not started
+- `active` - Auction currently in progress
+- `ended` - Auction has ended
+- `sold` - Sold at auction
+
+**Human-readable mappings:**
+- "For Sale" → `active`
+- "Bidding Started" → `active`
+- "Upcoming" → `upcoming`
+- "Ended" → `ended`
+- "Sold" → `sold`
+
+**Invalid values** are dropped and not sent to HubSpot to avoid `INVALID_OPTION` errors.
 
 ## Operational Notes
 
@@ -324,8 +350,9 @@ When processing large feeds (10,000+ listings):
 3. **Fetch Feed**: Downloads the JSON feed from the configured URL
 4. **Transform**: Converts feed data to HubSpot format with field mapping
 5. **Upsert**: For each listing:
-   - Searches for existing listing by `assetId`
-   - Updates if found, creates if not found
+   - Searches for existing listing by `hs_name` (uniquely identifies listings)
+   - Updates if found (limited fields only), creates if not found
+   - Never creates duplicates
 6. **Retry**: Failed API calls are retried with exponential backoff
 7. **Log**: All operations are logged with configurable verbosity
 
