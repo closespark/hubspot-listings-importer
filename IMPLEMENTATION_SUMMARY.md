@@ -16,35 +16,39 @@ Successfully implemented a complete Node.js tool that imports JSON real estate f
 - ✅ Configured with proper display and search properties
 - ✅ Associated with Contacts and Companies
 
-### 3. Required Properties (19 total)
-All properties are created automatically with proper types:
+### 3. Properties
+The importer uses HubSpot-owned properties (hs_ prefix) and creates custom properties:
 
-**Property Details:**
-- ✅ assetId (string, required, unique identifier)
-- ✅ listPrice (number)
-- ✅ listingStatus (string)
-- ✅ propertyType (string)
+**HubSpot-Owned Properties (already exist with hs_ prefix):**
+- ✅ hs_square_footage (number)
+- ✅ hs_bathrooms (number)
+- ✅ hs_bedrooms (number)
+- ✅ hs_lot_size (number)
+- ✅ hs_city (string)
+- ✅ hs_state (string)
+- ✅ hs_zip (string)
+- ✅ hs_address_1 (string)
+- ✅ hs_address_2 (string)
 
-**Property Specifications:**
-- ✅ squareFootage (number)
-- ✅ bathrooms (number)
-- ✅ bedrooms (number)
-- ✅ lotSize (number)
-- ✅ lotSizeUnits (string)
-
-**Location Information:**
-- ✅ city (string)
-- ✅ state (string)
-- ✅ zip (string)
+**Custom Properties (created by importer):**
+- ✅ external_listing_id (string, required, unique identifier)
+- ✅ reference_id (string)
+- ✅ listing_start_date (date)
+- ✅ listing_end_date (date)
+- ✅ list_price (number)
+- ✅ listing_status (enumeration)
+- ✅ property_type (enumeration)
+- ✅ lot_size_units (enumeration)
+- ✅ state_code (enumeration)
 - ✅ county (string)
-- ✅ address1 (string)
-- ✅ address2 (string)
-
-**Media & Auction:**
-- ✅ mediaUrl (string)
-- ✅ auctionStatus (string)
-- ✅ auctionStartDate (datetime)
-- ✅ auctionEndDate (datetime)
+- ✅ listing_url (string)
+- ✅ primary_image_url (string)
+- ✅ is_new_listing (boolean)
+- ✅ is_featured (boolean)
+- ✅ marketing_eligible (boolean)
+- ✅ auction_status (enumeration)
+- ✅ auction_start_date (date)
+- ✅ auction_end_date (date)
 
 ### 4. Data Transformation
 - ✅ Flexible field mapping supporting multiple naming conventions

@@ -150,38 +150,9 @@ const LISTINGS_PROPERTIES = [
       { label: 'Other', value: 'other' },
     ],
   },
-  {
-    name: 'square_footage',
-    label: 'Square Footage',
-    type: 'number',
-    fieldType: 'number',
-    groupName: 'listing_information',
-    description: 'Square footage of the property',
-  },
-  {
-    name: 'bathrooms',
-    label: 'Bathrooms',
-    type: 'number',
-    fieldType: 'number',
-    groupName: 'listing_information',
-    description: 'Number of bathrooms',
-  },
-  {
-    name: 'bedrooms',
-    label: 'Bedrooms',
-    type: 'number',
-    fieldType: 'number',
-    groupName: 'listing_information',
-    description: 'Number of bedrooms',
-  },
-  {
-    name: 'lot_size',
-    label: 'Lot Size',
-    type: 'number',
-    fieldType: 'number',
-    groupName: 'listing_information',
-    description: 'Size of the lot',
-  },
+  // NOTE: The following HubSpot-owned properties are NOT defined here because they already
+  // exist with hs_ prefix (e.g., hs_square_footage, hs_bedrooms, hs_bathrooms, hs_lot_size,
+  // hs_city, hs_state, hs_zip, hs_address_1, hs_address_2). We only define custom properties.
   {
     name: 'lot_size_units',
     label: 'Lot Size Units',
@@ -195,22 +166,7 @@ const LISTINGS_PROPERTIES = [
       { label: 'Square Meters', value: 'sqm' },
     ],
   },
-  {
-    name: 'city',
-    label: 'City',
-    type: 'string',
-    fieldType: 'text',
-    groupName: 'listing_information',
-    description: 'City where property is located',
-  },
-  {
-    name: 'state',
-    label: 'State',
-    type: 'string',
-    fieldType: 'text',
-    groupName: 'listing_information',
-    description: 'State where property is located',
-  },
+  // NOTE: hs_city, hs_state, hs_zip are HubSpot-owned properties - not defined here
   {
     name: 'state_code',
     label: 'State Code',
@@ -220,14 +176,7 @@ const LISTINGS_PROPERTIES = [
     description: 'US state code (e.g., CA, NY, TX)',
     options: US_STATE_CODES,
   },
-  {
-    name: 'zip',
-    label: 'ZIP Code',
-    type: 'string',
-    fieldType: 'text',
-    groupName: 'listing_information',
-    description: 'ZIP/Postal code',
-  },
+  // NOTE: hs_zip is HubSpot-owned property - not defined here
   {
     name: 'county',
     label: 'County',
@@ -236,22 +185,7 @@ const LISTINGS_PROPERTIES = [
     groupName: 'listing_information',
     description: 'County where property is located',
   },
-  {
-    name: 'address_line_1',
-    label: 'Address Line 1',
-    type: 'string',
-    fieldType: 'text',
-    groupName: 'listing_information',
-    description: 'Primary address line',
-  },
-  {
-    name: 'address_line_2',
-    label: 'Address Line 2',
-    type: 'string',
-    fieldType: 'text',
-    groupName: 'listing_information',
-    description: 'Secondary address line (apt, suite, etc.)',
-  },
+  // NOTE: hs_address_1 and hs_address_2 are HubSpot-owned properties - not defined here
   {
     name: 'listing_url',
     label: 'Listing URL',
