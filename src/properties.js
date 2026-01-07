@@ -1,8 +1,15 @@
 /**
  * Normalize a property name to snake_case format required by HubSpot.
  * HubSpot requires property names to be lowercase + underscore only.
+ * 
+ * This utility is exported for use by consumers who need to dynamically
+ * convert camelCase property names to HubSpot-compatible snake_case format.
+ * 
  * @param {string} name - Property name (can be camelCase or snake_case)
  * @returns {string} Normalized snake_case property name
+ * @example
+ * normalizePropertyName('externalListingId') // => 'external_listing_id'
+ * normalizePropertyName('listPrice') // => 'list_price'
  */
 function normalizePropertyName(name) {
   return name
