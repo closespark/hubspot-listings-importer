@@ -89,6 +89,54 @@ const STATE_NAME_TO_CODE = {
 };
 
 /**
+ * Valid HubSpot auction_status enum values
+ */
+const VALID_AUCTION_STATUS = new Set([
+  'not_on_auction',
+  'upcoming',
+  'active',
+  'ended',
+  'sold',
+]);
+
+/**
+ * Auction status mapping from human-readable strings to HubSpot internal values
+ */
+const AUCTION_STATUS_MAP = {
+  'For Sale': 'active',
+  'Bidding Started': 'active',
+  'Upcoming': 'upcoming',
+  'Ended': 'ended',
+  'Sold': 'sold',
+};
+
+/**
+ * Normalize auction status to HubSpot-approved enum value
+ * @param {string|null} status - Raw auction status from feed
+ * @returns {string|null} HubSpot-approved auction status or null if should be omitted
+ */
+function normalizeAuctionStatus(status) {
+  if (status == null || status === '') {
+    return null;
+  }
+
+  const statusStr = String(status).trim();
+
+  // If it's already a valid HubSpot internal value, use it
+  if (VALID_AUCTION_STATUS.has(statusStr)) {
+    return statusStr;
+  }
+
+  // Try to map human-readable string to internal value
+  if (AUCTION_STATUS_MAP[statusStr] !== undefined) {
+    return AUCTION_STATUS_MAP[statusStr];
+  }
+
+  // Unknown value - omit field to avoid INVALID_OPTION errors
+  return null;
+}
+
+/**
  * Transform JSON feed data to HubSpot Listings format
  * 
  * Aggregated Warnings:
@@ -218,10 +266,13 @@ class DataTransformer {
       transformed.listing_end_date = toHubSpotDateOnly(this.parseDate(endDate));
     }
 
-    // Price fields
-    const price = this.getFirstAvailableField(feedListing, 'listPrice', 'list_price', 'price');
-    if (price !== null) {
-      transformed.list_price = this.parseNumber(price);
+    // Price fields - use HubSpot's native 'price' field (not custom 'list_price')
+    const priceValue = this.getFirstAvailableField(feedListing, 'listPrice', 'list_price', 'price');
+    if (priceValue !== null) {
+      const parsedPrice = this.parseNumber(priceValue);
+      if (parsedPrice !== null) {
+        transformed.price = parsedPrice;
+      }
     }
 
     // Status fields
@@ -334,20 +385,40 @@ class DataTransformer {
       transformed.marketing_eligible = true;
     }
 
-    // Auction fields
+    // Auction fields - fail soft: invalid data is stripped, not blocking
+    // Auction status - normalize to HubSpot-approved enum values
     const auctionStatus = this.getFirstAvailableField(feedListing, 'auctionStatus', 'auction_status');
     if (auctionStatus) {
-      transformed.auction_status = String(auctionStatus);
+      const normalizedStatus = normalizeAuctionStatus(auctionStatus);
+      if (normalizedStatus !== null) {
+        transformed.auction_status = normalizedStatus;
+      }
+      // If normalizedStatus is null, omit the field to avoid INVALID_OPTION errors
     }
 
+    // Auction dates - normalize to midnight UTC (HubSpot date-only fields)
     const auctionStart = this.getFirstAvailableField(feedListing, 'auctionStartDate', 'auction_start_date');
     if (auctionStart) {
-      transformed.auction_start_date = this.parseDate(auctionStart);
+      const parsedStart = this.parseDate(auctionStart);
+      if (parsedStart !== null) {
+        const normalizedStart = toHubSpotDateOnly(parsedStart);
+        if (normalizedStart !== null) {
+          transformed.auction_start_date = normalizedStart;
+        }
+      }
+      // If parsing/normalization fails, omit the field to avoid INVALID_DATE errors
     }
 
     const auctionEnd = this.getFirstAvailableField(feedListing, 'auctionEndDate', 'auction_end_date');
     if (auctionEnd) {
-      transformed.auction_end_date = this.parseDate(auctionEnd);
+      const parsedEnd = this.parseDate(auctionEnd);
+      if (parsedEnd !== null) {
+        const normalizedEnd = toHubSpotDateOnly(parsedEnd);
+        if (normalizedEnd !== null) {
+          transformed.auction_end_date = normalizedEnd;
+        }
+      }
+      // If parsing/normalization fails, omit the field to avoid INVALID_DATE errors
     }
 
     // REQUIRED by HubSpot: hs_name
