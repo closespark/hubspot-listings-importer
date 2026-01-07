@@ -24,7 +24,7 @@ These properties are auto-created by HubSpot and are referenced using their corr
 - `hs_bedrooms` - Number of bedrooms
 - `hs_lot_size` - Lot size value
 - `hs_city` - City
-- `hs_state` - State
+- `hs_state_province` - State/Province
 - `hs_zip` - ZIP/Postal code
 - `hs_address_1` - Primary address line
 - `hs_address_2` - Secondary address line
@@ -226,7 +226,7 @@ The transformer supports multiple field name variations:
 | hs_lot_size | `lotSize`, `lot_size` |
 | lot_size_units | `lotSizeUnits`, `lot_size_units` |
 | hs_city | `city` |
-| hs_state | `state` |
+| hs_state_province | `state` |
 | state_code | `stateCode`, `state_code` (auto-derived from state) |
 | hs_zip | `zip`, `zipCode`, `zip_code`, `postal_code` |
 | county | `county` |

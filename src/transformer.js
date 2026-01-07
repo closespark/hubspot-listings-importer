@@ -204,7 +204,7 @@ class DataTransformer {
     }
 
     if (feedListing.state) {
-      transformed.hs_state = String(feedListing.state);
+      transformed.hs_state_province = String(feedListing.state);
     }
 
     // Derive state_code from state or use provided stateCode
