@@ -2,6 +2,19 @@ const logger = require('./logger');
 const { US_STATE_CODES, VALID_STATE_CODES } = require('./properties');
 
 /**
+ * Normalize epoch milliseconds to midnight UTC for HubSpot date-only fields.
+ * HubSpot Date picker fields (Show date only) require epoch milliseconds at 00:00:00 UTC.
+ * @param {number|null} epochMs - Epoch milliseconds timestamp
+ * @returns {number|null} Epoch milliseconds at midnight UTC, or null if input is null/undefined
+ */
+function toHubSpotDateOnly(epochMs) {
+  if (epochMs == null) return null;
+  const d = new Date(Number(epochMs));
+  d.setUTCHours(0, 0, 0, 0);
+  return d.getTime();
+}
+
+/**
  * Infer HubSpot listing type based on property characteristics
  * Uses HubSpot's native hs_listing_type enum values
  * @param {Object} params - Property characteristics
@@ -193,16 +206,16 @@ class DataTransformer {
       transformed.reference_id = String(referenceId);
     }
 
-    // Listing Start Date
+    // Listing Start Date (date-only field, normalized to midnight UTC)
     const startDate = this.getFirstAvailableField(feedListing, 'listingStartDate', 'listing_start_date', 'startDate', 'start_date');
     if (startDate) {
-      transformed.listing_start_date = this.parseDate(startDate);
+      transformed.listing_start_date = toHubSpotDateOnly(this.parseDate(startDate));
     }
 
-    // Listing End Date
+    // Listing End Date (date-only field, normalized to midnight UTC)
     const endDate = this.getFirstAvailableField(feedListing, 'listingEndDate', 'listing_end_date', 'endDate', 'end_date');
     if (endDate) {
-      transformed.listing_end_date = this.parseDate(endDate);
+      transformed.listing_end_date = toHubSpotDateOnly(this.parseDate(endDate));
     }
 
     // Price fields
