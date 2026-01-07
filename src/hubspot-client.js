@@ -280,7 +280,9 @@ class HubSpotClient {
       }
     }
 
-    // Backfill + cleanup: if price is being set, clear legacy list_price
+    // Backfill + cleanup: if price is being set, clear legacy list_price field.
+    // We use null (not undefined) to explicitly clear the field in HubSpot.
+    // This ensures stale list_price data is removed during migration to price.
     if (updateProps.price !== undefined) {
       updateProps.list_price = null;
     }

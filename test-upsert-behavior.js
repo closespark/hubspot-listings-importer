@@ -245,7 +245,7 @@ const listingBadAuction = {
   auction_status: 'BadEnumValue', // Invalid - should be omitted
   auction_start_date: 'not-a-date', // Invalid - should be omitted
   auction_end_date: '2024-02-15T00:00:00Z', // Valid
-  city: 'Test City',  // Use 'city' as that's what transformer expects
+  city: 'Test City',  // Input uses 'city', transformer maps to output 'hs_city'
 };
 const transformedBadAuction = transformer.transformListing(listingBadAuction);
 

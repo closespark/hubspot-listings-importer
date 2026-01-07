@@ -116,7 +116,7 @@ const AUCTION_STATUS_MAP = {
  * @returns {string|null} HubSpot-approved auction status or null if should be omitted
  */
 function normalizeAuctionStatus(status) {
-  if (status == null || status === '') {
+  if (status === null || status === undefined || status === '') {
     return null;
   }
 
