@@ -54,6 +54,25 @@ test(
   'manufactured'
 );
 
+// Test apartments detection (larger-scale multi-unit)
+test(
+  'apartments - many bedrooms (10+)',
+  { squareFootage: 6000, bedrooms: 10, bathrooms: 6, lotSize: 15000 },
+  'apartments'
+);
+
+test(
+  'apartments - many bathrooms (8+)',
+  { squareFootage: 7500, bedrooms: 8, bathrooms: 8, lotSize: 20000 },
+  'apartments'
+);
+
+test(
+  'apartments - large with 8+ beds',
+  { squareFootage: 8000, bedrooms: 8, bathrooms: 6, lotSize: 25000 },
+  'apartments'
+);
+
 // Test multi_family detection
 test(
   'multi_family - many bedrooms',

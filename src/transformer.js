@@ -27,7 +27,12 @@ function inferHsListingType({ squareFootage, bedrooms, bathrooms, lotSize }) {
     return 'manufactured';
   }
 
-  // Apartments / Multi-Family
+  // Apartments (larger-scale multi-unit)
+  if (beds >= 10 || baths >= 8 || (sf >= 8000 && beds >= 8)) {
+    return 'apartments';
+  }
+
+  // Multi-Family (duplex / triplex / small multi-unit)
   if (beds >= 5 || baths >= 3.5 || (sf >= 2500 && beds >= 4)) {
     return 'multi_family';
   }
