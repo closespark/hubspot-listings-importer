@@ -20,7 +20,7 @@ The importer uses both HubSpot-owned properties (prefixed with `hs_`) and custom
 ### HubSpot-Owned Properties (hs_ prefix)
 These properties are auto-created by HubSpot and are referenced using their correct internal names:
 - `hs_name` - Listing name (auto-generated from address, unique identifier for upserts)
-- `hs_price` - Native HubSpot price field (authoritative)
+- `price` - Native HubSpot price field (authoritative, not prefixed with hs_)
 - `hs_square_footage` - Square footage
 - `hs_bathrooms` - Number of bathrooms
 - `hs_bedrooms` - Number of bedrooms
@@ -37,7 +37,7 @@ These properties are created and managed by the importer:
 - `reference_id` - Secondary reference ID
 - `listing_start_date` - When listing became active
 - `listing_end_date` - When listing ended or expires
-- `list_price` - **Legacy price field (read-only, cleared when hs_price is updated)**
+- `list_price` - **Legacy price field (read-only, cleared when price is updated)**
 - `listing_status` - Current status (dropdown: For Sale, Under Contract, Sold, Withdrawn, Expired)
 - `lot_size_units` - Units for lot size (dropdown: Square Feet, Acres, Square Meters)
 - `state_code` - US state code dropdown (e.g., CA, NY, TX)
@@ -232,7 +232,7 @@ The transformer supports multiple field name variations:
 | reference_id | `referenceId`, `reference_id`, `assetReferenceId`, `asset_reference_id` |
 | listing_start_date | `listingStartDate`, `listing_start_date`, `startDate`, `start_date` |
 | listing_end_date | `listingEndDate`, `listing_end_date`, `endDate`, `end_date` |
-| hs_price | `listPrice`, `list_price`, `price` |
+| price | `listPrice`, `list_price`, `price` |
 | listing_status | `listingStatus`, `listing_status`, `status` |
 | hs_square_footage | `squareFootage`, `square_footage`, `sqft` |
 | hs_bathrooms | `bathrooms`, `baths` |

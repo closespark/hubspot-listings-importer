@@ -21,7 +21,7 @@ The importer uses HubSpot-owned properties (hs_ prefix) and creates custom prope
 
 **HubSpot-Owned Properties (already exist with hs_ prefix):**
 - ✅ hs_name (string, auto-generated from address, unique identifier for upserts)
-- ✅ hs_price (number, native HubSpot price field - authoritative)
+- ✅ price (number, native HubSpot price field - authoritative, not prefixed with hs_)
 - ✅ hs_square_footage (number)
 - ✅ hs_bathrooms (number)
 - ✅ hs_bedrooms (number)
@@ -37,7 +37,7 @@ The importer uses HubSpot-owned properties (hs_ prefix) and creates custom prope
 - ✅ reference_id (string)
 - ✅ listing_start_date (date)
 - ✅ listing_end_date (date)
-- ✅ list_price (number, legacy - read-only, cleared when hs_price is updated)
+- ✅ list_price (number, legacy - read-only, cleared when price is updated)
 - ✅ listing_status (enumeration)
 - ✅ lot_size_units (enumeration)
 - ✅ state_code (enumeration)
