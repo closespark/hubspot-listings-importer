@@ -22,8 +22,77 @@ const STATE_NAME_TO_CODE = {
 
 /**
  * Transform JSON feed data to HubSpot Listings format
+ * 
+ * Aggregated Warnings:
+ * Instead of logging a warning for every individual transformation issue,
+ * this transformer aggregates warnings by type and reports a summary at the
+ * end of the batch. This prevents log flooding when processing large feeds.
  */
 class DataTransformer {
+  constructor() {
+    this.resetWarnings();
+  }
+
+  /**
+   * Reset warning aggregation counters
+   */
+  resetWarnings() {
+    this.warnings = {
+      invalidStateCode: { count: 0, examples: [] },
+      stateDerivationFailed: { count: 0, examples: [] },
+      invalidDate: { count: 0, examples: [] },
+      dateOutOfRange: { count: 0, examples: [] },
+      unsupportedDateType: { count: 0, examples: [] },
+      dateParseError: { count: 0, examples: [] },
+    };
+    // Maximum examples to collect per warning type
+    this.maxExamples = 3;
+  }
+
+  /**
+   * Track a warning for aggregated reporting
+   * @param {string} type - Warning type key
+   * @param {string} example - Example value that caused the warning
+   */
+  trackWarning(type, example) {
+    if (this.warnings[type]) {
+      this.warnings[type].count++;
+      if (this.warnings[type].examples.length < this.maxExamples) {
+        this.warnings[type].examples.push(example);
+      }
+    }
+  }
+
+  /**
+   * Log aggregated warnings summary
+   * Called after processing a batch of listings
+   */
+  logWarningSummary() {
+    const warningMessages = {
+      invalidStateCode: 'Invalid stateCode values provided',
+      stateDerivationFailed: 'Could not derive stateCode from state values',
+      invalidDate: 'Invalid date values encountered',
+      dateOutOfRange: 'Date values out of reasonable range (1900-2100)',
+      unsupportedDateType: 'Unsupported date types encountered',
+      dateParseError: 'Errors parsing date values',
+    };
+
+    let hasWarnings = false;
+    for (const [type, data] of Object.entries(this.warnings)) {
+      if (data.count > 0) {
+        hasWarnings = true;
+        const examples = data.examples.length > 0 
+          ? ` (examples: ${data.examples.map(e => `"${e}"`).join(', ')}${data.count > data.examples.length ? ', ...' : ''})`
+          : '';
+        logger.warn(`${warningMessages[type]}: ${data.count} occurrence(s)${examples}`);
+      }
+    }
+
+    if (hasWarnings) {
+      logger.info('For details on individual warnings, set LOG_LEVEL=debug');
+    }
+  }
+
   /**
    * Get the first available field value from a list of possible field names
    */
@@ -240,7 +309,9 @@ class DataTransformer {
       if (VALID_STATE_CODES.has(code)) {
         return code;
       }
-      logger.warn(`Invalid stateCode provided: ${providedCode}`);
+      // Track invalid stateCode for aggregated warning
+      this.trackWarning('invalidStateCode', String(providedCode));
+      logger.debug(`Invalid stateCode provided: ${providedCode}`);
     }
 
     // Try to derive from state field using getFirstAvailableField for flexibility
@@ -262,8 +333,9 @@ class DataTransformer {
       return STATE_NAME_TO_CODE[normalizedName];
     }
 
-    // Log when state derivation fails - useful for debugging workflow enrollment issues
-    logger.warn(`Could not derive stateCode from state value: "${state}"`);
+    // Track state derivation failure for aggregated warning
+    this.trackWarning('stateDerivationFailed', state);
+    logger.debug(`Could not derive stateCode from state value: "${state}"`);
     return null;
   }
 
@@ -297,23 +369,27 @@ class DataTransformer {
         
         // Check if the date is valid and not in the distant past (before 1900) or far future (after 2100)
         if (isNaN(date.getTime())) {
-          logger.warn(`Invalid date value: ${value}`);
+          this.trackWarning('invalidDate', value);
+          logger.debug(`Invalid date value: ${value}`);
           return null;
         }
 
         const year = date.getFullYear();
         if (year < 1900 || year > 2100) {
-          logger.warn(`Date out of reasonable range: ${value}`);
+          this.trackWarning('dateOutOfRange', value);
+          logger.debug(`Date out of reasonable range: ${value}`);
           return null;
         }
 
         return date.getTime();
       }
 
-      logger.warn(`Unsupported date type: ${typeof value}`);
+      this.trackWarning('unsupportedDateType', typeof value);
+      logger.debug(`Unsupported date type: ${typeof value}`);
       return null;
     } catch (error) {
-      logger.warn(`Error parsing date: ${value}`, { error: error.message });
+      this.trackWarning('dateParseError', String(value));
+      logger.debug(`Error parsing date: ${value}`, { error: error.message });
       return null;
     }
   }
@@ -322,12 +398,15 @@ class DataTransformer {
    * Transform an array of listings
    */
   transformListings(feedListings) {
+    // Reset warnings for this batch
+    this.resetWarnings();
+
     if (!Array.isArray(feedListings)) {
       logger.warn('Feed data is not an array, attempting to wrap it');
       feedListings = [feedListings];
     }
 
-    return feedListings
+    const results = feedListings
       .map((listing, index) => {
         try {
           return this.transformListing(listing);
@@ -337,6 +416,11 @@ class DataTransformer {
         }
       })
       .filter(listing => listing !== null && listing.externalListingId); // Filter out invalid listings
+
+    // Log aggregated warnings summary
+    this.logWarningSummary();
+
+    return results;
   }
 }
 
