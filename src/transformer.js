@@ -281,6 +281,7 @@ class DataTransformer {
     }
 
     // REQUIRED by HubSpot: hs_name
+    // Generate hs_name from address components if not already provided in the feed
     if (!transformed.hs_name) {
       const parts = [];
 
