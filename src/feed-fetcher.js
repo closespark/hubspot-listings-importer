@@ -128,6 +128,11 @@ class FeedFetcher {
       return data.data;
     }
 
+    if (data.properties && Array.isArray(data.properties)) {
+      logger.info(`Feed contains ${data.properties.length} listings (in 'properties' property)`);
+      return data.properties;
+    }
+
     // If it's a single object, treat it as a single listing
     if (typeof data === 'object') {
       logger.info('Feed contains a single listing object');
