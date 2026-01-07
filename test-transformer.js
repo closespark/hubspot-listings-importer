@@ -35,8 +35,8 @@ transformed.forEach((listing, index) => {
 // Verify required fields
 let allValid = true;
 transformed.forEach((listing, index) => {
-  if (!listing.assetId) {
-    console.error(`ERROR: Listing ${index + 1} missing assetId`);
+  if (!listing.externalListingId) {
+    console.error(`ERROR: Listing ${index + 1} missing externalListingId`);
     allValid = false;
   }
 });

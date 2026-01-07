@@ -12,7 +12,7 @@ const logger = require('./logger');
 program
   .name('hubspot-listings-importer')
   .description('Import JSON real estate feeds into HubSpot Listings')
-  .version('1.0.0')
+  .version('1.1.0')
   .option('-f, --file <path>', 'Path to JSON feed file')
   .option('-u, --url <url>', 'URL to JSON feed')
   .option('--dry-run', 'Run without making changes to HubSpot', false)
@@ -66,7 +66,7 @@ async function main() {
     if (results.errors && results.errors.length > 0) {
       console.log('ERRORS:');
       results.errors.forEach((err, idx) => {
-        console.log(`  ${idx + 1}. Asset ID: ${err.assetId} - ${err.error}`);
+        console.log(`  ${idx + 1}. External Listing ID: ${err.externalListingId} - ${err.error}`);
       });
       console.log('\n');
     }

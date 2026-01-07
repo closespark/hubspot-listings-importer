@@ -79,10 +79,10 @@ class HubSpotClient {
         singular: 'Listing',
         plural: 'Listings',
       },
-      primaryDisplayProperty: 'assetId',
-      secondaryDisplayProperties: ['address1', 'city', 'state'],
-      searchableProperties: ['assetId', 'address1', 'city', 'state', 'zip'],
-      requiredProperties: ['assetId'],
+      primaryDisplayProperty: 'externalListingId',
+      secondaryDisplayProperties: ['addressLine1', 'city', 'state', 'referenceId'],
+      searchableProperties: ['externalListingId', 'referenceId', 'addressLine1', 'city', 'state', 'stateCode', 'zip'],
+      requiredProperties: ['externalListingId'],
       properties: [],
       associatedObjects: ['CONTACT', 'COMPANY'],
     };
@@ -177,18 +177,18 @@ class HubSpotClient {
   }
 
   /**
-   * Search for existing listing by assetId
+   * Search for existing listing by externalListingId
    */
-  async searchByAssetId(assetId) {
+  async searchByExternalListingId(externalListingId) {
     try {
       const filter = {
         filterGroups: [
           {
             filters: [
               {
-                propertyName: 'assetId',
+                propertyName: 'externalListingId',
                 operator: 'EQ',
-                value: assetId,
+                value: externalListingId,
               },
             ],
           },
@@ -197,12 +197,12 @@ class HubSpotClient {
 
       const result = await this.retry(
         () => this.client.crm.objects.searchApi.doSearch(this.objectType, filter),
-        `search for assetId ${assetId}`
+        `search for externalListingId ${externalListingId}`
       );
 
       return result.results && result.results.length > 0 ? result.results[0] : null;
     } catch (error) {
-      logger.error(`Failed to search for assetId ${assetId}`, { error: error.message });
+      logger.error(`Failed to search for externalListingId ${externalListingId}`, { error: error.message });
       return null;
     }
   }
@@ -213,19 +213,19 @@ class HubSpotClient {
   async createListing(properties) {
     // Check for dry-run mode
     if (config.get('dryRun')) {
-      logger.info(`[DRY-RUN] Would create listing: ${properties.assetId}`);
-      return { id: 'dry-run-' + properties.assetId, properties };
+      logger.info(`[DRY-RUN] Would create listing: ${properties.externalListingId}`);
+      return { id: 'dry-run-' + properties.externalListingId, properties };
     }
 
     try {
       const result = await this.retry(
         () => this.client.crm.objects.basicApi.create(this.objectType, { properties }),
-        `create listing ${properties.assetId}`
+        `create listing ${properties.externalListingId}`
       );
-      logger.info(`Created listing: ${properties.assetId}`, { id: result.id });
+      logger.info(`Created listing: ${properties.externalListingId}`, { id: result.id });
       return result;
     } catch (error) {
-      logger.error(`Failed to create listing ${properties.assetId}`, { error: error.message });
+      logger.error(`Failed to create listing ${properties.externalListingId}`, { error: error.message });
       throw error;
     }
   }
@@ -236,7 +236,7 @@ class HubSpotClient {
   async updateListing(listingId, properties) {
     // Check for dry-run mode
     if (config.get('dryRun')) {
-      logger.info(`[DRY-RUN] Would update listing: ${properties.assetId} (ID: ${listingId})`);
+      logger.info(`[DRY-RUN] Would update listing: ${properties.externalListingId} (ID: ${listingId})`);
       return { id: listingId, properties };
     }
 
@@ -245,7 +245,7 @@ class HubSpotClient {
         () => this.client.crm.objects.basicApi.update(this.objectType, listingId, { properties }),
         `update listing ${listingId}`
       );
-      logger.info(`Updated listing: ${properties.assetId}`, { id: listingId });
+      logger.info(`Updated listing: ${properties.externalListingId}`, { id: listingId });
       return result;
     } catch (error) {
       logger.error(`Failed to update listing ${listingId}`, { error: error.message });
@@ -257,11 +257,11 @@ class HubSpotClient {
    * Upsert a listing (create or update)
    */
   async upsertListing(properties) {
-    if (!properties.assetId) {
-      throw new Error('assetId is required for upserting');
+    if (!properties.externalListingId) {
+      throw new Error('externalListingId is required for upserting');
     }
 
-    const existing = await this.searchByAssetId(properties.assetId);
+    const existing = await this.searchByExternalListingId(properties.externalListingId);
     
     if (existing) {
       return await this.updateListing(existing.id, properties);
@@ -286,7 +286,7 @@ class HubSpotClient {
 
     for (const listing of listings) {
       try {
-        const existing = await this.searchByAssetId(listing.assetId);
+        const existing = await this.searchByExternalListingId(listing.externalListingId);
         
         if (existing) {
           await this.updateListing(existing.id, listing);
@@ -298,10 +298,10 @@ class HubSpotClient {
       } catch (error) {
         results.failed++;
         results.errors.push({
-          assetId: listing.assetId,
+          externalListingId: listing.externalListingId,
           error: error.message,
         });
-        logger.error(`Failed to upsert listing ${listing.assetId}`, { error: error.message });
+        logger.error(`Failed to upsert listing ${listing.externalListingId}`, { error: error.message });
       }
     }
 
