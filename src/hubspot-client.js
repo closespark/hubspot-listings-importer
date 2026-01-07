@@ -254,6 +254,55 @@ class HubSpotClient {
   }
 
   /**
+   * Fields that can be updated on existing listings.
+   * Other fields are preserved to avoid overwriting unrelated data.
+   */
+  static UPDATABLE_FIELDS = [
+    'auction_status',
+    'price',
+    'auction_start_date',
+    'auction_end_date',
+  ];
+
+  /**
+   * Prepare properties for update - only include updatable fields.
+   * If price is set, also clear legacy list_price field.
+   * @param {Object} properties - Full listing properties
+   * @returns {Object} Properties filtered to only updatable fields
+   */
+  prepareUpdateProperties(properties) {
+    const updateProps = {};
+
+    // Only include fields that should be updated
+    for (const field of HubSpotClient.UPDATABLE_FIELDS) {
+      if (properties[field] !== undefined) {
+        updateProps[field] = properties[field];
+      }
+    }
+
+    // Backfill + cleanup: if price is being set, clear legacy list_price field.
+    // We use null (not undefined) to explicitly clear the field in HubSpot.
+    // This ensures stale list_price data is removed during migration to price.
+    if (updateProps.price !== undefined) {
+      updateProps.list_price = null;
+    }
+
+    return updateProps;
+  }
+
+  /**
+   * Prepare properties for create - exclude list_price (use price only).
+   * @param {Object} properties - Full listing properties
+   * @returns {Object} Properties without list_price
+   */
+  prepareCreateProperties(properties) {
+    const createProps = { ...properties };
+    // Do not include list_price on new listings - price is the single source of truth
+    delete createProps.list_price;
+    return createProps;
+  }
+
+  /**
    * Upsert a listing (create or update)
    */
   async upsertListing(properties) {
@@ -264,9 +313,11 @@ class HubSpotClient {
     const existing = await this.searchByExternalListingId(properties.external_listing_id);
     
     if (existing) {
-      return await this.updateListing(existing.id, properties);
+      const updateProps = this.prepareUpdateProperties(properties);
+      return await this.updateListing(existing.id, updateProps);
     } else {
-      return await this.createListing(properties);
+      const createProps = this.prepareCreateProperties(properties);
+      return await this.createListing(createProps);
     }
   }
 
@@ -289,10 +340,12 @@ class HubSpotClient {
         const existing = await this.searchByExternalListingId(listing.external_listing_id);
         
         if (existing) {
-          await this.updateListing(existing.id, listing);
+          const updateProps = this.prepareUpdateProperties(listing);
+          await this.updateListing(existing.id, updateProps);
           results.updated++;
         } else {
-          await this.createListing(listing);
+          const createProps = this.prepareCreateProperties(listing);
+          await this.createListing(createProps);
           results.created++;
         }
       } catch (error) {
